@@ -23,7 +23,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ org
 
   const { data: settings } = await admin
     .from('org_site_settings')
-    .select('brand_color, logo_url, whatsapp, phone, contact_email')
+    .select(
+      'brand_color, secondary_color, accent_color, background_color, heading_font, body_font, logo_url, logo_dark_url, favicon_url, whatsapp, phone, contact_email, app_name, app_icon_url, app_splash_url',
+    )
     .eq('organization_id', orgId)
     .maybeSingle()
 
@@ -46,10 +48,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ org
       domain: siteDomain,
       url: `https://${siteDomain}`,
     },
+    app: {
+      name: settings?.app_name ?? org.name,
+      iconUrl: settings?.app_icon_url ?? null,
+      splashUrl: settings?.app_splash_url ?? null,
+    },
     branding: {
-      appName: org.name,
       brandColor: settings?.brand_color ?? '#2563eb',
+      secondaryColor: settings?.secondary_color ?? '#1e293b',
+      accentColor: settings?.accent_color ?? '#f59e0b',
+      backgroundColor: settings?.background_color ?? '#ffffff',
+      headingFont: settings?.heading_font ?? 'Geist',
+      bodyFont: settings?.body_font ?? 'Geist',
       logoUrl: settings?.logo_url ?? null,
+      logoDarkUrl: settings?.logo_dark_url ?? null,
+      faviconUrl: settings?.favicon_url ?? null,
     },
     contact: {
       whatsapp: settings?.whatsapp ?? null,

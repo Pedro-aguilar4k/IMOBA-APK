@@ -93,7 +93,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ key: 
       <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">Imóveis em destaque</h2>
+            <h2 className="site-heading text-2xl font-bold tracking-tight text-foreground">Imóveis em destaque</h2>
             <p className="mt-1 text-muted-foreground">Confira as melhores oportunidades disponíveis.</p>
           </div>
           <Link
