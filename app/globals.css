@@ -157,7 +157,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* Evita seleção acidental e destaque de toque em dispositivos móveis */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
+    /* Respeita as safe areas (notch/barra inferior) do iOS e Android */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Trava de orientação: mostra o aviso apenas em landscape em telas de toque */
+@media (orientation: landscape) and (max-height: 600px) and (pointer: coarse) {
+  .landscape-lock {
+    display: flex;
   }
 }

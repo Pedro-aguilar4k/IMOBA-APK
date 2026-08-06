@@ -278,6 +278,13 @@ export default function AuthForm({ activated = false, passwordChanged = false }:
         {loading ? 'Entrando...' : 'Entrar'}
       </Button>
 
+      <Link
+        href="/primeiro-acesso"
+        className="flex h-14 w-full items-center justify-center rounded-xl border border-primary/40 bg-background text-base font-semibold uppercase tracking-wide text-primary transition-colors hover:bg-accent"
+      >
+        Primeiro acesso
+      </Link>
+
       {biometricSupported ? (
         <>
           <div className="flex items-center gap-3 py-1">
@@ -302,13 +309,6 @@ export default function AuthForm({ activated = false, passwordChanged = false }:
           </Button>
         </>
       ) : null}
-
-      <p className="mt-2 text-center text-sm leading-6 text-muted-foreground">
-        Cliente convidado pelo corretor?{' '}
-        <Link href="/primeiro-acesso" className="font-semibold text-primary hover:underline">
-          Primeiro acesso
-        </Link>
-      </p>
     </form>
   )
 }
