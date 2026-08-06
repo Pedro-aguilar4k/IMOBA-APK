@@ -12,7 +12,7 @@ import {
 import DashboardHeader from '@/components/dashboard/corretor/dashboard-header'
 import BottomNav from '@/components/dashboard/corretor/bottom-nav'
 import { createClient } from '@/lib/supabase/server'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { getPropertyList } from '@/lib/properties-server'
 
 function firstName(name: string) {
@@ -32,13 +32,13 @@ function formatCompactBRL(cents: number) {
 }
 
 export default async function CorretorDashboard() {
-  const access = await requireRole('corretor')
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
 
   const [{ data: profile }, properties, { data: contracts }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    getPropertyList(supabase, access.userId),
-    supabase.from('contracts').select('*').eq('corretor_id', access.userId),
+    getPropertyList(supabase, access.organizationId),
+    supabase.from('contracts').select('*').eq('organization_id', access.organizationId),
   ])
 
   const contractIds = (contracts ?? []).map((contract) => contract.id)

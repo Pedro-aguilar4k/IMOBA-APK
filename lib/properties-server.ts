@@ -4,11 +4,14 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PropertyMediaRecord, PropertyRecord } from '@/lib/properties'
 import type { PropertyListItem } from '@/components/dashboard/properties-list'
 
-export async function getPropertyList(supabase: SupabaseClient, corretorId: string): Promise<PropertyListItem[]> {
+export async function getPropertyList(
+  supabase: SupabaseClient,
+  organizationId: string,
+): Promise<PropertyListItem[]> {
   const { data: properties, error } = await supabase
     .from('properties')
     .select('id, title, address, neighborhood, city, state, bedrooms, bathrooms, usable_area_sqm, area_sqm, rent_value, status')
-    .eq('corretor_id', corretorId)
+    .eq('organization_id', organizationId)
     .order('created_at', { ascending: false })
 
   if (error || !properties?.length) return []

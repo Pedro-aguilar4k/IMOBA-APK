@@ -1,35 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import CorretorHeader from '@/components/dashboard/corretor-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
+import { requireOrgRole } from '@/lib/auth/tenant'
 
 export default async function ContractsPage() {
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/auth/login')
-  }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', access.userId)
     .single()
 
-  if (!profile || profile.role !== 'corretor') {
-    redirect('/')
-  }
-
-  // Buscar todos os contratos do corretor
+  // Buscar todos os contratos da imobiliária inteira
   const { data: contracts } = await supabase
     .from('contracts')
     .select('*, profiles:locatario_id(*), properties(*)')
-    .eq('corretor_id', user.id)
+    .eq('organization_id', access.organizationId)
     .order('created_at', { ascending: false })
 
   const statusColors = {

@@ -4,17 +4,17 @@ import CorretorHeader from '@/components/dashboard/corretor-header'
 import PropertiesList from '@/components/dashboard/properties-list'
 import { buttonVariants } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { getPropertyList } from '@/lib/properties-server'
 
 export const metadata = { title: 'Imóveis' }
 
 export default async function PropertiesPage() {
-  const access = await requireRole('corretor')
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
   const [{ data: profile }, properties] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    getPropertyList(supabase, access.userId),
+    getPropertyList(supabase, access.organizationId),
   ])
 
   return (

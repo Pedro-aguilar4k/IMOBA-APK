@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { addSignedUrls } from '@/lib/properties-server'
 import { createClient } from '@/lib/supabase/server'
 import { PROPERTY_STATUSES, formatCurrency, getPropertyTypeLabel, type PropertyMediaRecord, type PropertyRecord } from '@/lib/properties'
@@ -17,11 +17,11 @@ export const metadata = { title: 'Detalhes do imóvel' }
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const access = await requireRole('corretor')
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
   const [{ data: profile }, { data }, { data: mediaData }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    supabase.from('properties').select('*').eq('id', id).eq('corretor_id', access.userId).single(),
+    supabase.from('properties').select('*').eq('id', id).eq('organization_id', access.organizationId).single(),
     supabase.from('property_media').select('*').eq('property_id', id).order('position'),
   ])
 
