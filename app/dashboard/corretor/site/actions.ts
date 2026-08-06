@@ -2,14 +2,24 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { requireOrgRole, logAudit } from '@/lib/auth/tenant'
+import { getTenantContext, requireOrgRole, logAudit } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isSiteFont } from '@/lib/sites/fonts'
+
+const hex = z.string().regex(/^#([0-9a-fA-F]{6})$/, 'Use uma cor no formato #RRGGBB.')
+const fontField = z
+  .string()
+  .refine((v) => isSiteFont(v), 'Fonte inválida.')
+  .optional()
+  .or(z.literal(''))
 
 const settingsSchema = z.object({
-  brandColor: z
-    .string()
-    .regex(/^#([0-9a-fA-F]{6})$/, 'Use uma cor no formato #RRGGBB.'),
-  logoUrl: z.string().url('URL do logo inválida.').optional().or(z.literal('')),
+  brandColor: hex,
+  secondaryColor: hex,
+  accentColor: hex,
+  backgroundColor: hex,
+  headingFont: fontField,
+  bodyFont: fontField,
   heroTitle: z.string().max(120).optional().or(z.literal('')),
   heroSubtitle: z.string().max(200).optional().or(z.literal('')),
   aboutText: z.string().max(2000).optional().or(z.literal('')),
@@ -24,15 +34,50 @@ export interface SiteSettingsState {
   success?: boolean
 }
 
+interface Authorized {
+  organizationId: string
+  userId: string
+  impersonated: boolean
+}
+
+/**
+ * Autoriza edição das configurações do site.
+ * - Superadmin (sem impersonação): edita a org informada em `organizationId`.
+ * - Dono/impersonação: apenas a própria org.
+ */
+async function authorizeSettings(organizationId?: string): Promise<Authorized | { error: string }> {
+  const ctx = await getTenantContext()
+  if (!ctx) return { error: 'Sessão expirada. Faça login novamente.' }
+
+  if (ctx.isPlatformAdmin && !ctx.impersonation) {
+    if (!organizationId) return { error: 'Imobiliária inválida.' }
+    return { organizationId, userId: ctx.userId, impersonated: false }
+  }
+
+  const activeOrg = ctx.organizationId
+  if (!activeOrg) return { error: 'Você não tem acesso a uma imobiliária.' }
+  if (organizationId && organizationId !== activeOrg) return { error: 'Acesso negado.' }
+  const isOwner = ctx.role === 'org_admin' || Boolean(ctx.impersonation)
+  if (!isOwner) return { error: 'Apenas o responsável pode personalizar o site.' }
+
+  return { organizationId: activeOrg, userId: ctx.userId, impersonated: Boolean(ctx.impersonation) }
+}
+
 export async function saveSiteSettings(
   _prev: SiteSettingsState,
   formData: FormData,
 ): Promise<SiteSettingsState> {
-  const ctx = await requireOrgRole('org_admin')
+  const orgFromForm = formData.get('organizationId')
+  const auth = await authorizeSettings(typeof orgFromForm === 'string' ? orgFromForm : undefined)
+  if ('error' in auth) return { error: auth.error }
 
   const parsed = settingsSchema.safeParse({
     brandColor: formData.get('brandColor'),
-    logoUrl: formData.get('logoUrl'),
+    secondaryColor: formData.get('secondaryColor'),
+    accentColor: formData.get('accentColor'),
+    backgroundColor: formData.get('backgroundColor'),
+    headingFont: formData.get('headingFont'),
+    bodyFont: formData.get('bodyFont'),
     heroTitle: formData.get('heroTitle'),
     heroSubtitle: formData.get('heroSubtitle'),
     aboutText: formData.get('aboutText'),
@@ -52,7 +97,11 @@ export async function saveSiteSettings(
     .from('org_site_settings')
     .update({
       brand_color: v.brandColor,
-      logo_url: v.logoUrl || null,
+      secondary_color: v.secondaryColor,
+      accent_color: v.accentColor,
+      background_color: v.backgroundColor,
+      heading_font: v.headingFont || 'Geist',
+      body_font: v.bodyFont || 'Geist',
       hero_title: v.heroTitle || null,
       hero_subtitle: v.heroSubtitle || null,
       about_text: v.aboutText || null,
@@ -61,20 +110,54 @@ export async function saveSiteSettings(
       contact_email: v.contactEmail || null,
       address: v.address || null,
       updated_at: new Date().toISOString(),
-      updated_by: ctx.userId,
+      updated_by: auth.userId,
     })
-    .eq('organization_id', ctx.organizationId)
+    .eq('organization_id', auth.organizationId)
 
   if (error) return { error: 'Não foi possível salvar as configurações.' }
 
   await logAudit({
-    actorUserId: ctx.userId,
-    organizationId: ctx.organizationId,
-    impersonated: Boolean(ctx.impersonation),
+    actorUserId: auth.userId,
+    organizationId: auth.organizationId,
+    impersonated: auth.impersonated,
     action: 'site.settings_updated',
     entity: 'org_site_settings',
   })
   revalidatePath('/dashboard/corretor/site')
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+const appSchema = z.object({
+  organizationId: z.string().uuid(),
+  appName: z.string().max(60).optional().or(z.literal('')),
+})
+
+/** Configurações do app — exclusivas do superadmin. */
+export async function saveAppSettings(
+  _prev: SiteSettingsState,
+  formData: FormData,
+): Promise<SiteSettingsState> {
+  const ctx = await getTenantContext()
+  if (!ctx?.isPlatformAdmin || ctx.impersonation) {
+    return { error: 'Apenas a plataforma pode configurar o app.' }
+  }
+
+  const parsed = appSchema.safeParse({
+    organizationId: formData.get('organizationId'),
+    appName: formData.get('appName'),
+  })
+  if (!parsed.success) return { error: 'Dados do app inválidos.' }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('org_site_settings')
+    .update({ app_name: parsed.data.appName || null, updated_at: new Date().toISOString(), updated_by: ctx.userId })
+    .eq('organization_id', parsed.data.organizationId)
+
+  if (error) return { error: 'Não foi possível salvar as configurações do app.' }
+
+  revalidatePath('/admin')
   return { success: true }
 }
 

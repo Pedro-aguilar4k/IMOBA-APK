@@ -1,8 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
+import Link from 'next/link'
+import { Palette, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ImpersonateButton } from '@/components/dashboard/impersonate-button'
 import { SiteManageButton } from '@/components/dashboard/site-manage-button'
@@ -84,6 +86,16 @@ export function AdminOrgList({ organizations }: { organizations: AdminOrgRow[] }
                 <Badge variant={org.status === 'active' ? 'default' : 'secondary'}>
                   {org.status === 'active' ? 'Conta ativa' : org.status === 'legacy' ? 'Cadastro legado' : 'Sem corretor'}
                 </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  render={
+                    <Link href={`/admin/personalizar/${org.id}`}>
+                      <Palette className="size-4" />
+                      Personalizar
+                    </Link>
+                  }
+                />
                 <SiteManageButton
                   organizationId={org.id}
                   organizationName={org.name}

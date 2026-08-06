@@ -12,7 +12,16 @@ export interface SiteOrganization {
 
 export interface SiteSettings {
   brandColor: string
+  secondaryColor: string
+  accentColor: string
+  backgroundColor: string
+  headingFont: string
+  bodyFont: string
   logoUrl: string | null
+  logoDarkUrl: string | null
+  faviconUrl: string | null
+  heroImageUrl: string | null
+  aboutImageUrl: string | null
   heroTitle: string | null
   heroSubtitle: string | null
   aboutText: string | null
@@ -63,7 +72,16 @@ export async function getSiteByKey(key: string): Promise<SiteData | null> {
     },
     settings: {
       brandColor: settings?.brand_color ?? '#2563eb',
+      secondaryColor: settings?.secondary_color ?? '#1e293b',
+      accentColor: settings?.accent_color ?? '#f59e0b',
+      backgroundColor: settings?.background_color ?? '#ffffff',
+      headingFont: settings?.heading_font ?? 'Geist',
+      bodyFont: settings?.body_font ?? 'Geist',
       logoUrl: settings?.logo_url ?? null,
+      logoDarkUrl: settings?.logo_dark_url ?? null,
+      faviconUrl: settings?.favicon_url ?? null,
+      heroImageUrl: settings?.hero_image_url ?? null,
+      aboutImageUrl: settings?.about_image_url ?? null,
       heroTitle: settings?.hero_title ?? null,
       heroSubtitle: settings?.hero_subtitle ?? null,
       aboutText: settings?.about_text ?? null,

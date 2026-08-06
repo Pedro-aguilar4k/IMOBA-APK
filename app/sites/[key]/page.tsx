@@ -30,19 +30,42 @@ export default async function SiteHomePage({ params }: { params: Promise<{ key: 
     <>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{ backgroundColor: 'var(--brand)' }}
-          aria-hidden
-        />
+        {site.settings.heroImageUrl ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={site.settings.heroImageUrl || '/placeholder.svg'}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 size-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" aria-hidden />
+          </>
+        ) : (
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundColor: 'var(--brand)' }} aria-hidden />
+        )}
         <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-20 sm:px-6 md:py-28">
-          <span className="w-fit rounded-full border border-[var(--brand)]/30 bg-[var(--brand)]/10 px-3 py-1 text-sm font-medium text-[var(--brand)]">
+          <span
+            className={
+              site.settings.heroImageUrl
+                ? 'w-fit rounded-full border border-white/30 bg-white/10 px-3 py-1 text-sm font-medium text-white'
+                : 'w-fit rounded-full border border-[var(--brand)]/30 bg-[var(--brand)]/10 px-3 py-1 text-sm font-medium text-[var(--brand)]'
+            }
+          >
             {site.organization.name}
           </span>
-          <h1 className="max-w-2xl text-balance text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          <h1
+            className={`site-heading max-w-2xl text-balance text-4xl font-bold tracking-tight md:text-5xl ${
+              site.settings.heroImageUrl ? 'text-white' : 'text-foreground'
+            }`}
+          >
             {site.settings.heroTitle ?? 'Encontre seu próximo imóvel'}
           </h1>
-          <p className="max-w-xl text-pretty text-lg text-muted-foreground">
+          <p
+            className={`max-w-xl text-pretty text-lg ${
+              site.settings.heroImageUrl ? 'text-white/90' : 'text-muted-foreground'
+            }`}
+          >
             {site.settings.heroSubtitle ?? `Imóveis selecionados pela ${site.organization.name}.`}
           </p>
           <div className="flex flex-wrap items-center gap-3">

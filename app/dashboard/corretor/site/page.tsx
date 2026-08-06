@@ -2,8 +2,9 @@ import { requireOrgRole } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { ROOT_DOMAIN } from '@/lib/sites/host'
+import { mapSettingsToBranding } from '@/lib/sites/branding-types'
 import CorretorHeader from '@/components/dashboard/corretor-header'
-import { SiteSettingsForm, type SiteSettingsValues } from '@/components/dashboard/corretor/site-settings-form'
+import { BrandingStudio } from '@/components/dashboard/corretor/branding-studio'
 import { SitePublishCard } from '@/components/dashboard/corretor/site-publish-card'
 import { LeadsInbox, type LeadItem } from '@/components/dashboard/corretor/leads-inbox'
 
@@ -30,17 +31,7 @@ export default async function SitePage() {
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
   ])
 
-  const initial: SiteSettingsValues = {
-    brandColor: settings?.brand_color ?? '#2563eb',
-    logoUrl: settings?.logo_url ?? '',
-    heroTitle: settings?.hero_title ?? '',
-    heroSubtitle: settings?.hero_subtitle ?? '',
-    aboutText: settings?.about_text ?? '',
-    whatsapp: settings?.whatsapp ?? '',
-    phone: settings?.phone ?? '',
-    contactEmail: settings?.contact_email ?? '',
-    address: settings?.address ?? '',
-  }
+  const branding = mapSettingsToBranding(settings)
 
   const leads: LeadItem[] = (leadsRows ?? []).map((l) => ({
     id: l.id,
@@ -62,7 +53,7 @@ export default async function SitePage() {
 
   return (
     <div className="min-h-svh bg-muted/40">
-      <div className="mx-auto flex min-h-svh w-full max-w-3xl flex-col">
+      <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col">
         <CorretorHeader name={profile?.name ?? 'Dono'} email={access.email} isOwner />
 
         <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -73,29 +64,30 @@ export default async function SitePage() {
             </p>
           </header>
 
-          <SitePublishCard
-            published={org?.site_published ?? false}
-            siteUrl={siteUrl}
-            previewUrl={previewUrl}
-            customDomain={org?.custom_domain ?? null}
-            customDomainVerified={org?.custom_domain_verified ?? false}
-          />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <SitePublishCard
+              published={org?.site_published ?? false}
+              siteUrl={siteUrl}
+              previewUrl={previewUrl}
+              customDomain={org?.custom_domain ?? null}
+              customDomainVerified={org?.custom_domain_verified ?? false}
+            />
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-foreground">Leads</h2>
+                {newLeads > 0 ? (
+                  <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
+                    {newLeads} novo{newLeads > 1 ? 's' : ''}
+                  </span>
+                ) : null}
+              </div>
+              <LeadsInbox leads={leads} />
+            </section>
+          </div>
 
           <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Leads</h2>
-              {newLeads > 0 ? (
-                <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
-                  {newLeads} novo{newLeads > 1 ? 's' : ''}
-                </span>
-              ) : null}
-            </div>
-            <LeadsInbox leads={leads} />
-          </section>
-
-          <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-foreground">Personalização</h2>
-            <SiteSettingsForm initial={initial} />
+            <h2 className="text-lg font-semibold text-foreground">Personalização do site</h2>
+            <BrandingStudio initial={branding} orgName={org?.name ?? 'Sua imobiliária'} />
           </section>
         </main>
       </div>
