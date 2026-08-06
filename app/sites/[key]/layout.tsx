@@ -7,15 +7,15 @@ import { SiteFooter } from '@/components/sites/site-footer'
 
 /**
  * basePath:
- * - Em host real (subdomínio/domínio) o proxy reescreve para /_sites/[key] e injeta
+ * - Em host real (subdomínio/domínio) o proxy reescreve para /sites/[key] e injeta
  *   o header x-site-key; nesse caso os links devem ser relativos à raiz ("").
- * - No preview do v0 acessamos /_sites/[key] diretamente (sem header), então os links
- *   precisam manter o prefixo /_sites/[key].
+ * - No preview do v0 acessamos /sites/[key] diretamente (sem header), então os links
+ *   precisam manter o prefixo /sites/[key].
  */
 async function resolveBasePath(key: string) {
   const h = await headers()
   const viaHost = h.get('x-site-key')
-  return viaHost ? '' : `/_sites/${key}`
+  return viaHost ? '' : `/sites/${key}`
 }
 
 export default async function SiteLayout({

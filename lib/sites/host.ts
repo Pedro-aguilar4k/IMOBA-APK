@@ -47,7 +47,9 @@ export function resolveHost(request: NextRequest):
     host === 'localhost' ||
     host.endsWith('.localhost') ||
     host.startsWith('127.0.0.1') ||
+    host.startsWith('0.0.0.0') ||
     host.endsWith('.vercel.app') ||
+    host.endsWith('.vercel.run') ||
     host.endsWith('.v0.dev') ||
     host.endsWith('.v0.build') ||
     host.endsWith('.lite.vusercontent.net') ||

@@ -45,17 +45,17 @@ export function PropertyCard({ property, basePath }: { property: SitePropertyCar
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          {property.bedrooms != null ? (
+          {property.bedrooms ? (
             <span className="flex items-center gap-1">
               <BedDouble className="size-4" /> {property.bedrooms}
             </span>
           ) : null}
-          {property.bathrooms != null ? (
+          {property.bathrooms ? (
             <span className="flex items-center gap-1">
               <Bath className="size-4" /> {property.bathrooms}
             </span>
           ) : null}
-          {property.parkingSpaces != null ? (
+          {property.parkingSpaces ? (
             <span className="flex items-center gap-1">
               <Car className="size-4" /> {property.parkingSpaces}
             </span>

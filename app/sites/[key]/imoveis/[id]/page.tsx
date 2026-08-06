@@ -8,6 +8,20 @@ import { PropertyGallery } from '@/components/sites/property-gallery'
 import { getPropertyTypeLabel } from '@/lib/properties'
 import { buildWhatsappLink, formatBRLFromCents } from '@/lib/sites/format'
 
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
+
+export async function generateMetadata({ params }: { params: Promise<{ key: string; id: string }> }) {
+  const { key, id } = await params
+  const site = await getSiteByKey(key)
+  if (!site) return { title: 'Imóvel' }
+  const detail = await getSitePropertyDetail(site.organization.id, id)
+  if (!detail) return { title: 'Imóvel' }
+  return {
+    title: `${detail.property.title} — ${site.organization.name}`,
+    description: detail.property.description?.slice(0, 150) ?? undefined,
+  }
+}
+
 export default async function SitePropertyDetailPage({
   params,
 }: {
@@ -32,9 +46,15 @@ export default async function SitePropertyDetailPage({
   )
 
   const specs = [
-    property.bedrooms != null ? { icon: BedDouble, label: `${property.bedrooms} quartos` } : null,
-    property.bathrooms != null ? { icon: Bath, label: `${property.bathrooms} banheiros` } : null,
-    property.parking_spaces != null ? { icon: Car, label: `${property.parking_spaces} vagas` } : null,
+    property.bedrooms
+      ? { icon: BedDouble, label: plural(property.bedrooms, 'quarto', 'quartos') }
+      : null,
+    property.bathrooms
+      ? { icon: Bath, label: plural(property.bathrooms, 'banheiro', 'banheiros') }
+      : null,
+    property.parking_spaces
+      ? { icon: Car, label: plural(property.parking_spaces, 'vaga', 'vagas') }
+      : null,
     property.usable_area_sqm ?? property.area_sqm
       ? { icon: Maximize, label: `${property.usable_area_sqm ?? property.area_sqm} m²` }
       : null,

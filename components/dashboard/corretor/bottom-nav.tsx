@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Building2,
   DollarSign,
+  Globe,
   Home,
   KeyRound,
   LayoutGrid,
@@ -100,6 +101,12 @@ export default function BottomNav({ isOwner = false }: { isOwner?: boolean }) {
                   <DropdownMenuItem render={<Link href="/dashboard/corretor/team" />}>
                     <UsersRound />
                     Equipe
+                  </DropdownMenuItem>
+                ) : null}
+                {isOwner ? (
+                  <DropdownMenuItem render={<Link href="/dashboard/corretor/site" />}>
+                    <Globe />
+                    Meu site
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem render={<Link href="/dashboard/corretor/profile" />}>

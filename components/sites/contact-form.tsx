@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { submitLead, type LeadFormState } from '@/app/_sites/[key]/actions'
+import { submitLead, type LeadFormState } from '@/app/sites/[key]/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
