@@ -280,7 +280,7 @@ export default function AuthForm({ activated = false, passwordChanged = false }:
 
       <Link
         href="/primeiro-acesso"
-        className="flex h-14 w-full items-center justify-center rounded-xl border border-primary/40 bg-background text-base font-semibold uppercase tracking-wide text-primary transition-colors hover:bg-accent"
+        className="flex h-14 w-full items-center justify-center rounded-xl border border-primary/40 bg-background text-base font-semibold text-primary transition-colors hover:bg-accent"
       >
         Primeiro acesso
       </Link>
