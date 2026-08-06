@@ -1,15 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  BarChart3,
   ChevronRight,
   ClipboardList,
-  DollarSign,
   Headphones,
-  Home,
   HousePlus,
   Info,
-  KeyRound,
   ReceiptText,
   TriangleAlert,
 } from 'lucide-react'
@@ -110,32 +106,24 @@ export default async function CorretorDashboard() {
           {/* Cartões de estatística */}
           <section className="grid grid-cols-2 gap-4" aria-label="Resumo da operação">
             <StatCard
-              icon={<Home className="size-6" />}
-              iconClass="bg-accent text-primary"
               value={String(totalProperties)}
               valueClass="text-primary"
               title="Imóveis"
               subtitle="Cadastrados"
             />
             <StatCard
-              icon={<KeyRound className="size-6" />}
-              iconClass="bg-emerald-50 text-emerald-600"
               value={String(activeContracts)}
               valueClass="text-emerald-600"
               title="Alugados"
               subtitle="Ativos"
             />
             <StatCard
-              icon={<DollarSign className="size-6" />}
-              iconClass="bg-emerald-50 text-emerald-600"
               value={formatCompactBRL(toReceive)}
               valueClass="text-emerald-600"
               title="A receber"
               subtitle="Este mês"
             />
             <StatCard
-              icon={<BarChart3 className="size-6" />}
-              iconClass="bg-violet-50 text-violet-600"
               value={formatCompactBRL(revenue)}
               valueClass="text-foreground"
               title="Faturamento"
@@ -232,30 +220,21 @@ export default async function CorretorDashboard() {
 }
 
 function StatCard({
-  icon,
-  iconClass,
   value,
   valueClass,
   title,
   subtitle,
 }: {
-  icon: React.ReactNode
-  iconClass: string
   value: string
   valueClass: string
   title: string
   subtitle: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
-      <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}>
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <p className={`whitespace-nowrap text-2xl font-bold leading-none ${valueClass}`}>{value}</p>
-        <p className="mt-1 text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
-      </div>
+    <div className="flex min-w-0 flex-col rounded-2xl border border-border bg-card p-4">
+      <p className={`truncate text-3xl font-bold leading-none ${valueClass}`}>{value}</p>
+      <p className="mt-2 text-sm font-semibold text-foreground">{title}</p>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </div>
   )
 }
