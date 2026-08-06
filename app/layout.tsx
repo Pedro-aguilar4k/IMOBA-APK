@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { OrientationLock } from '@/components/orientation-lock'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -31,6 +32,11 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light dark',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
@@ -46,6 +52,7 @@ export default function RootLayout({
     <html lang="pt-BR" className="bg-background">
       <body className="min-h-svh bg-background antialiased">
         {children}
+        <OrientationLock />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

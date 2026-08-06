@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
+import { House } from 'lucide-react'
 import { FirstAccessForm } from '@/components/first-access-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function FirstAccessPage() {
@@ -12,18 +12,21 @@ export default async function FirstAccessPage() {
   if (user) redirect('/')
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-background p-6 md:p-10">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Primeiro acesso do cliente</CardTitle>
-          <CardDescription>
-            Use os dados cadastrados pelo seu corretor para criar suas credenciais.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FirstAccessForm />
-        </CardContent>
-      </Card>
+    <main className="flex min-h-svh flex-col items-center justify-center bg-background px-6 py-10">
+      <div className="flex w-full max-w-sm flex-col items-center">
+        <div className="flex size-20 items-center justify-center rounded-3xl bg-card shadow-lg shadow-primary/10 ring-1 ring-border">
+          <House className="size-11 text-primary" aria-hidden="true" strokeWidth={2.25} />
+        </div>
+
+        <h1 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
+          Imob<span className="text-primary">App</span>
+        </h1>
+        <p className="mt-1 text-center text-base text-balance text-muted-foreground">
+          Ative seu acesso com os dados cadastrados pelo corretor
+        </p>
+
+        <FirstAccessForm />
+      </div>
     </main>
   )
 }
