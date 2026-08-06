@@ -1,21 +1,54 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { createBrokerAccount, type BrokerAccountState } from '@/app/admin/actions'
+import { slugify } from '@/lib/sites/slug'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const initialState: BrokerAccountState = {}
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'imobapp.com'
 
 export function BrokerAccountForm() {
   const [state, action, pending] = useActionState(createBrokerAccount, initialState)
+  const [slug, setSlug] = useState('')
+  const [slugTouched, setSlugTouched] = useState(false)
+
+  const previewSlug = slugify(slug || 'nome-da-corretora') || 'nome-da-corretora'
 
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className="grid gap-2">
         <Label htmlFor="organizationName">Nome da imobiliária</Label>
-        <Input id="organizationName" name="organizationName" autoComplete="organization" required />
+        <Input
+          id="organizationName"
+          name="organizationName"
+          autoComplete="organization"
+          required
+          onChange={(e) => {
+            if (!slugTouched) setSlug(e.target.value)
+          }}
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="slug">Endereço do site</Label>
+        <Input
+          id="slug"
+          name="slug"
+          value={slug}
+          onChange={(e) => {
+            setSlugTouched(true)
+            setSlug(e.target.value)
+          }}
+          placeholder="nome-da-corretora"
+          autoCapitalize="none"
+          spellCheck={false}
+        />
+        <p className="text-sm leading-6 text-muted-foreground">
+          Será publicado em <span className="font-mono text-foreground">{previewSlug}.{ROOT_DOMAIN}</span>
+        </p>
       </div>
 
       <div className="grid gap-2">

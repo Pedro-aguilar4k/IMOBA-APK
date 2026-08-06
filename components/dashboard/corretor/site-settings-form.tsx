@@ -100,16 +100,18 @@ export function SiteSettingsForm({ initial }: { initial: SiteSettingsValues }) {
         <h2 className="mb-4 text-sm font-semibold text-foreground">Contato</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="WhatsApp">
-            <Input name="whatsapp" defaultValue={initial.whatsapp} placeholder="(11) 99999-0000" />
+            {(id) => <Input id={id} name="whatsapp" defaultValue={initial.whatsapp} placeholder="(11) 99999-0000" />}
           </Field>
           <Field label="Telefone">
-            <Input name="phone" defaultValue={initial.phone} placeholder="(11) 3333-0000" />
+            {(id) => <Input id={id} name="phone" defaultValue={initial.phone} placeholder="(11) 3333-0000" />}
           </Field>
           <Field label="E-mail de contato">
-            <Input name="contactEmail" type="email" defaultValue={initial.contactEmail} placeholder="contato@..." />
+            {(id) => (
+              <Input id={id} name="contactEmail" type="email" defaultValue={initial.contactEmail} placeholder="contato@..." />
+            )}
           </Field>
           <Field label="Endereço">
-            <Input name="address" defaultValue={initial.address} placeholder="Rua, número - Cidade/UF" />
+            {(id) => <Input id={id} name="address" defaultValue={initial.address} placeholder="Rua, número - Cidade/UF" />}
           </Field>
         </div>
       </section>

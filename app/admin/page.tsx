@@ -1,10 +1,12 @@
 import { BrokerAccountForm } from '@/components/broker-invite-form'
 import { AdminHeader } from '@/components/dashboard/admin-header'
 import { ImpersonateButton } from '@/components/dashboard/impersonate-button'
+import { SiteManageButton } from '@/components/dashboard/site-manage-button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { requirePlatformAdmin } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { ROOT_DOMAIN } from '@/lib/sites/host'
 
 export default async function AdminPage() {
   const access = await requirePlatformAdmin()
@@ -12,16 +14,26 @@ export default async function AdminPage() {
   const [{ data: organizations }, { data: brokerRoles }, { data: users }] = await Promise.all([
     admin
       .from('organizations')
-      .select('id, name, cnpj, status, created_at, access_invites(id, name, role, status)')
+      .select(
+        'id, name, cnpj, status, slug, custom_domain, custom_domain_verified, site_published, created_at, access_invites(id, name, role, status)',
+      )
       .order('created_at', { ascending: false }),
-    admin.from('user_roles').select('user_id, organization_id').eq('role', 'corretor'),
+    admin
+      .from('user_roles')
+      .select('user_id, organization_id, role')
+      .in('role', ['org_admin', 'corretor']),
     admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ])
 
   const userById = new Map((users?.users ?? []).map((user) => [user.id, user]))
-  const brokerByOrganization = new Map(
-    (brokerRoles ?? []).map((assignment) => [assignment.organization_id, userById.get(assignment.user_id)]),
-  )
+  // O responsável da imobiliária é o org_admin (dono); corretor é o fallback legado.
+  const brokerByOrganization = new Map<string, ReturnType<typeof userById.get>>()
+  for (const assignment of brokerRoles ?? []) {
+    const existing = brokerByOrganization.get(assignment.organization_id)
+    if (!existing || assignment.role === 'org_admin') {
+      brokerByOrganization.set(assignment.organization_id, userById.get(assignment.user_id))
+    }
+  }
 
   return (
     <div className="min-h-svh bg-background">
@@ -59,6 +71,16 @@ export default async function AdminPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground">{organization.name}</p>
                     <p className="text-sm leading-6 text-muted-foreground">CNPJ final {organization.cnpj.slice(-4)}</p>
+                    <p className="truncate font-mono text-sm leading-6 text-muted-foreground">
+                      {organization.custom_domain_verified && organization.custom_domain
+                        ? organization.custom_domain
+                        : `${organization.slug}.${ROOT_DOMAIN}`}
+                      {organization.site_published ? (
+                        <span className="ml-2 font-sans text-emerald-600">• publicado</span>
+                      ) : (
+                        <span className="ml-2 font-sans text-muted-foreground">• rascunho</span>
+                      )}
+                    </p>
                     {broker ? (
                       <>
                         <p className="text-sm leading-6 text-muted-foreground">
@@ -72,10 +94,17 @@ export default async function AdminPage() {
                       </p>
                     ) : null}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
                     <Badge variant={broker ? 'default' : 'secondary'}>
                       {broker ? 'Conta ativa' : legacyInvite ? 'Cadastro legado' : 'Sem corretor'}
                     </Badge>
+                    <SiteManageButton
+                      organizationId={organization.id}
+                      organizationName={organization.name}
+                      slug={organization.slug}
+                      customDomain={organization.custom_domain}
+                      customDomainVerified={organization.custom_domain_verified}
+                    />
                     <ImpersonateButton organizationId={organization.id} organizationName={organization.name} />
                   </div>
                 </div>

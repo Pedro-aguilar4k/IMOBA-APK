@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { requireRole } from '@/lib/auth/roles'
+import { requirePlatformAdmin } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { digitsOnly } from '@/lib/security/identifiers'
+import { isValidDomain, normalizeDomain, slugify, validateSlug } from '@/lib/sites/slug'
 
 export type BrokerAccountState = {
   error?: string
@@ -15,6 +16,7 @@ const brokerSchema = z
   .object({
     organizationName: z.string().trim().min(2, 'Informe o nome da imobiliária.'),
     brokerName: z.string().trim().min(2, 'Informe o nome do responsável.'),
+    slug: z.string().trim().optional(),
     cnpj: z.string().min(1, 'Informe o CNPJ.'),
     email: z.string().trim().toLowerCase().email('Informe um e-mail válido.'),
     temporaryPassword: z
@@ -34,10 +36,11 @@ export async function createBrokerAccount(
   _previousState: BrokerAccountState,
   formData: FormData,
 ): Promise<BrokerAccountState> {
-  const access = await requireRole('admin')
+  const access = await requirePlatformAdmin()
   const parsed = brokerSchema.safeParse({
     organizationName: formData.get('organizationName'),
     brokerName: formData.get('brokerName'),
+    slug: formData.get('slug'),
     cnpj: formData.get('cnpj'),
     email: formData.get('email'),
     temporaryPassword: formData.get('temporaryPassword'),
@@ -60,6 +63,25 @@ export async function createBrokerAccount(
 
   if (existingOrganization) {
     return { error: 'Já existe uma imobiliária cadastrada com este CNPJ.' }
+  }
+
+  // Endereço do site: usa o slug informado ou deriva do nome; garante unicidade.
+  const baseSlug = parsed.data.slug?.trim() ? parsed.data.slug : parsed.data.organizationName
+  const validation = validateSlug(baseSlug)
+  if (!validation.ok) return { error: validation.error }
+
+  let slug = validation.slug
+  const { data: slugTaken } = await admin.from('organizations').select('id').eq('slug', slug).maybeSingle()
+  if (slugTaken) {
+    // acrescenta sufixo numérico até achar um livre
+    for (let n = 2; n < 100; n++) {
+      const candidate = `${validation.slug}-${n}`
+      const { data: taken } = await admin.from('organizations').select('id').eq('slug', candidate).maybeSingle()
+      if (!taken) {
+        slug = candidate
+        break
+      }
+    }
   }
 
   const { data: existingUsers, error: listError } = await admin.auth.admin.listUsers({
@@ -96,6 +118,7 @@ export async function createBrokerAccount(
     .insert({
       name: parsed.data.organizationName,
       cnpj,
+      slug,
       created_by: access.userId,
     })
     .select('id')
@@ -106,6 +129,13 @@ export async function createBrokerAccount(
     return { error: 'Não foi possível cadastrar a imobiliária.' }
   }
   organizationId = organization.id
+
+  // Cria as configurações padrão do site da corretora.
+  await admin.from('org_site_settings').insert({
+    organization_id: organizationId,
+    hero_title: 'Encontre seu próximo imóvel',
+    hero_subtitle: `Imóveis selecionados pela ${parsed.data.organizationName}`,
+  })
 
   const { error: profileError } = await admin
     .from('profiles')
@@ -132,6 +162,77 @@ export async function createBrokerAccount(
 
   revalidatePath('/admin')
   return {
-    success: `Conta criada para ${parsed.data.email}. Entregue o e-mail e a senha temporária ao corretor.`,
+    success: `Conta criada para ${parsed.data.email} no endereço ${slug}. Entregue o e-mail e a senha temporária ao corretor.`,
+  }
+}
+
+// ===== Slug / domínio / config do app =====
+
+export type DomainState = { error?: string; success?: string }
+
+/** Admin altera o endereço (slug) da corretora. */
+export async function updateOrgSlug(_prev: DomainState, formData: FormData): Promise<DomainState> {
+  await requirePlatformAdmin()
+  const organizationId = String(formData.get('organizationId') ?? '')
+  const validation = validateSlug(String(formData.get('slug') ?? ''))
+  if (!organizationId) return { error: 'Imobiliária inválida.' }
+  if (!validation.ok) return { error: validation.error }
+
+  const admin = createAdminClient()
+  const { data: taken } = await admin
+    .from('organizations')
+    .select('id')
+    .eq('slug', validation.slug)
+    .neq('id', organizationId)
+    .maybeSingle()
+  if (taken) return { error: 'Este endereço já está em uso por outra imobiliária.' }
+
+  const { error } = await admin.from('organizations').update({ slug: validation.slug }).eq('id', organizationId)
+  if (error) return { error: 'Não foi possível atualizar o endereço.' }
+
+  revalidatePath('/admin')
+  return { success: `Endereço atualizado para ${validation.slug}.` }
+}
+
+/** Admin define/limpa o domínio próprio da corretora. */
+export async function updateOrgDomain(_prev: DomainState, formData: FormData): Promise<DomainState> {
+  await requirePlatformAdmin()
+  const organizationId = String(formData.get('organizationId') ?? '')
+  if (!organizationId) return { error: 'Imobiliária inválida.' }
+
+  const raw = String(formData.get('customDomain') ?? '').trim()
+  const admin = createAdminClient()
+
+  // vazio => remover domínio próprio
+  if (!raw) {
+    const { error } = await admin
+      .from('organizations')
+      .update({ custom_domain: null, custom_domain_verified: false })
+      .eq('id', organizationId)
+    if (error) return { error: 'Não foi possível remover o domínio.' }
+    revalidatePath('/admin')
+    return { success: 'Domínio próprio removido.' }
+  }
+
+  const domain = normalizeDomain(raw)
+  if (!isValidDomain(domain)) return { error: 'Informe um domínio válido (ex.: corretora.com.br).' }
+
+  const { data: taken } = await admin
+    .from('organizations')
+    .select('id')
+    .eq('custom_domain', domain)
+    .neq('id', organizationId)
+    .maybeSingle()
+  if (taken) return { error: 'Este domínio já está associado a outra imobiliária.' }
+
+  const { error } = await admin
+    .from('organizations')
+    .update({ custom_domain: domain, custom_domain_verified: false })
+    .eq('id', organizationId)
+  if (error) return { error: 'Não foi possível salvar o domínio.' }
+
+  revalidatePath('/admin')
+  return {
+    success: `Domínio ${domain} salvo. Aponte o DNS para a Vercel e adicione o domínio ao projeto para ativá-lo.`,
   }
 }
