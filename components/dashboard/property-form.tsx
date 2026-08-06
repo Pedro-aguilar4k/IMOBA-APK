@@ -1,9 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ImagePlus, LoaderCircle, X } from 'lucide-react'
-import { saveProperty, type PropertyActionResult } from '@/app/dashboard/corretor/properties/actions'
+import {
+  createPropertyUpload,
+  registerPropertyUpload,
+  saveProperty,
+  type PropertyActionResult,
+} from '@/app/dashboard/corretor/properties/actions'
+import { createClient } from '@/lib/supabase/client'
 import {
   PROPERTY_FEATURES,
   PROPERTY_STATUSES,
@@ -34,6 +40,7 @@ function defaultValue(value: string | number | null | undefined) {
 
 export function PropertyForm({ property, media = [] }: PropertyFormProps) {
   const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
   const [files, setFiles] = useState<File[]>([])
   const [pending, setPending] = useState(false)
   const [propertyType, setPropertyType] = useState(property?.property_type ?? 'apartment')
@@ -57,6 +64,32 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
     }
   }
 
+  const uploadPhotos = async (propertyId: string) => {
+    for (const [index, file] of files.entries()) {
+      setResult({ success: `Enviando foto ${index + 1} de ${files.length}...` })
+      const prepared = await createPropertyUpload(propertyId, {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      })
+      if (prepared.error || !prepared.path || !prepared.token) {
+        throw new Error(prepared.error ?? `Falha ao preparar ${file.name}.`)
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from('property-media')
+        .uploadToSignedUrl(prepared.path, prepared.token, file, { contentType: file.type })
+      if (uploadError) throw new Error(`Falha ao enviar ${file.name}.`)
+
+      const registered = await registerPropertyUpload(propertyId, {
+        path: prepared.path,
+        type: file.type,
+        size: file.size,
+      })
+      if (registered.error) throw new Error(registered.error)
+    }
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPending(true)
@@ -68,6 +101,7 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
       setResult(saved)
       if (!saved.propertyId || saved.error) return
 
+      await uploadPhotos(saved.propertyId)
       router.push(`/dashboard/corretor/properties/${saved.propertyId}`)
       router.refresh()
     } catch (error) {
@@ -211,7 +245,7 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
             <ImagePlus aria-hidden="true" />
             <span className="font-medium">Selecionar fotos</span>
             <span className="text-sm text-muted-foreground">JPG, PNG, WebP ou AVIF, até 5 MB cada</span>
-            <input name="photos" type="file" accept={ALLOWED_TYPES.join(',')} multiple className="sr-only" onChange={(event) => addFiles(event.target.files)} disabled={media.length + files.length >= MAX_PHOTOS} />
+            <input type="file" accept={ALLOWED_TYPES.join(',')} multiple className="sr-only" onChange={(event) => addFiles(event.target.files)} disabled={media.length + files.length >= MAX_PHOTOS} />
           </label>
           {files.length ? (
             <ul className="grid gap-2 sm:grid-cols-2" aria-label="Fotos selecionadas">
