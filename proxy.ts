@@ -16,6 +16,16 @@ export async function proxy(request: NextRequest) {
 
   const host = resolveHost(request)
 
+  // Domínio dedicado do painel superadmin: a raiz abre o painel; o resto segue o fluxo normal.
+  if (host.type === 'admin') {
+    if (pathname === '/') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.rewrite(url)
+    }
+    return await updateSession(request)
+  }
+
   // Host de corretora (subdomínio ou domínio próprio): serve o site público.
   if (host.type !== 'platform') {
     const url = request.nextUrl.clone()

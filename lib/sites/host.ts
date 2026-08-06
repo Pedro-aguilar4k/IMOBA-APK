@@ -6,6 +6,13 @@ import type { NextRequest } from 'next/server'
  */
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'imobapp.com'
 
+/**
+ * Domínio dedicado do painel superadmin da plataforma.
+ * Em produção fica em um domínio totalmente separado (ex.: "painel-imobapp.com").
+ * Deixe vazio para não ativar o roteamento por domínio (o painel continua acessível em /admin).
+ */
+export const ADMIN_DOMAIN = (process.env.NEXT_PUBLIC_ADMIN_DOMAIN ?? '').toLowerCase()
+
 /** Hosts que NÃO são sites de corretora (app principal / admin / preview). */
 const RESERVED_HOSTS = new Set(['www', 'app', 'admin', 'api'])
 
@@ -37,10 +44,16 @@ function stripPort(host: string) {
  */
 export function resolveHost(request: NextRequest):
   | { type: 'platform' }
+  | { type: 'admin' }
   | { type: 'subdomain'; slug: string }
   | { type: 'custom'; domain: string } {
   const rawHost = request.headers.get('host') ?? ''
   const host = stripPort(rawHost)
+
+  // Domínio dedicado do painel superadmin.
+  if (ADMIN_DOMAIN && (host === ADMIN_DOMAIN || host === `www.${ADMIN_DOMAIN}`)) {
+    return { type: 'admin' }
+  }
 
   // Ambientes de desenvolvimento/preview: sempre app principal.
   const isLocal =
