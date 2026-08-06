@@ -75,7 +75,6 @@ export async function createTeamMember(
     role: 'corretor',
     organization_id: organizationId,
     invited_by: ctx.userId,
-    created_by: ctx.userId,
   })
 
   if (profileError || roleError) {

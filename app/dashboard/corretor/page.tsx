@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import DashboardHeader from '@/components/dashboard/corretor/dashboard-header'
 import BottomNav from '@/components/dashboard/corretor/bottom-nav'
+import { ImpersonationBanner } from '@/components/dashboard/impersonation-banner'
 import { createClient } from '@/lib/supabase/server'
 import { requireOrgRole } from '@/lib/auth/tenant'
 import { getPropertyList } from '@/lib/properties-server'
@@ -67,6 +68,16 @@ export default async function CorretorDashboard() {
   const name = profile?.name ?? 'Corretor'
   const email = profile?.email ?? access.email
 
+  let impersonatedOrgName: string | null = null
+  if (access.impersonation) {
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', access.organizationId)
+      .maybeSingle()
+    impersonatedOrgName = org?.name ?? 'imobiliária'
+  }
+
   const quickActions = [
     { label: 'Novo imóvel', href: '/dashboard/corretor/properties/new', icon: HousePlus },
     { label: 'Vistoria', href: '/dashboard/corretor/properties', icon: ClipboardList },
@@ -76,6 +87,7 @@ export default async function CorretorDashboard() {
 
   return (
     <div className="min-h-svh bg-muted/40">
+      {impersonatedOrgName ? <ImpersonationBanner organizationName={impersonatedOrgName} /> : null}
       <div className="mx-auto flex min-h-svh w-full max-w-md flex-col">
         <DashboardHeader name={name} email={email} notifications={overduePayments.length} />
 
@@ -213,7 +225,7 @@ export default async function CorretorDashboard() {
           </section>
         </main>
 
-        <BottomNav />
+        <BottomNav isOwner={access.role === 'org_admin' || Boolean(access.impersonation)} />
       </div>
     </div>
   )

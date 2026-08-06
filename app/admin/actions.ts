@@ -112,15 +112,17 @@ export async function createBrokerAccount(
     .update({
       name: parsed.data.brokerName,
       email: parsed.data.email,
-      role: 'corretor',
+      role: 'org_admin',
+      organization_id: organizationId,
     })
     .eq('id', userId)
 
+  // O responsável criado pelo admin é o dono da imobiliária (org_admin).
   const { error: roleError } = await admin.from('user_roles').insert({
     user_id: userId,
-    role: 'corretor',
+    role: 'org_admin',
     organization_id: organizationId,
-    created_by: access.userId,
+    invited_by: access.userId,
   })
 
   if (profileError || roleError) {

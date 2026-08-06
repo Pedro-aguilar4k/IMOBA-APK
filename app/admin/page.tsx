@@ -1,12 +1,13 @@
 import { BrokerAccountForm } from '@/components/broker-invite-form'
 import { AdminHeader } from '@/components/dashboard/admin-header'
+import { ImpersonateButton } from '@/components/dashboard/impersonate-button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requireRole } from '@/lib/auth/roles'
+import { requirePlatformAdmin } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function AdminPage() {
-  const access = await requireRole('admin')
+  const access = await requirePlatformAdmin()
   const admin = createAdminClient()
   const [{ data: organizations }, { data: brokerRoles }, { data: users }] = await Promise.all([
     admin
@@ -71,9 +72,12 @@ export default async function AdminPage() {
                       </p>
                     ) : null}
                   </div>
-                  <Badge variant={broker ? 'default' : 'secondary'}>
-                    {broker ? 'Conta ativa' : legacyInvite ? 'Cadastro legado' : 'Sem corretor'}
-                  </Badge>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Badge variant={broker ? 'default' : 'secondary'}>
+                      {broker ? 'Conta ativa' : legacyInvite ? 'Cadastro legado' : 'Sem corretor'}
+                    </Badge>
+                    <ImpersonateButton organizationId={organization.id} organizationName={organization.name} />
+                  </div>
                 </div>
               )
             }) : (

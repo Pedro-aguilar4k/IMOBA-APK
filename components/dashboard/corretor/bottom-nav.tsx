@@ -12,6 +12,7 @@ import {
   MoreHorizontal,
   Settings,
   Users,
+  UsersRound,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -33,7 +34,7 @@ const items = [
 
 const moreLinks = ['/dashboard/corretor/profile']
 
-export default function BottomNav() {
+export default function BottomNav({ isOwner = false }: { isOwner?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -95,6 +96,12 @@ export default function BottomNav() {
                   <Users />
                   Locatários
                 </DropdownMenuItem>
+                {isOwner ? (
+                  <DropdownMenuItem render={<Link href="/dashboard/corretor/team" />}>
+                    <UsersRound />
+                    Equipe
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem render={<Link href="/dashboard/corretor/profile" />}>
                   <Settings />
                   Meu perfil
