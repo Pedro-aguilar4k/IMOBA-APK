@@ -2,12 +2,12 @@ import CorretorHeader from '@/components/dashboard/corretor-header'
 import { TenantInviteForm } from '@/components/tenant-invite-form'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function ClientsPage() {
-  const access = await requireRole('corretor')
-  const organizationId = access.assignment.organization_id
+  const access = await requireOrgRole('corretor')
+  const organizationId = access.organizationId
   const admin = createAdminClient()
 
   const [{ data: profile }, { data: invites }, { data: roleAssignments }] = await Promise.all([
@@ -23,7 +23,7 @@ export default async function ClientsPage() {
 
   return (
     <div className="min-h-svh bg-background">
-      <CorretorHeader name={profile?.name ?? 'Corretor'} email={access.email} />
+      <CorretorHeader name={profile?.name ?? 'Corretor'} email={access.email} isOwner={access.role === 'org_admin'} />
       <main className="mx-auto grid max-w-7xl gap-6 p-4 md:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] md:p-8">
         <Card className="h-fit">
           <CardHeader>

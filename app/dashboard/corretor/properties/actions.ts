@@ -31,7 +31,6 @@ async function getOwnedProperty(propertyId: string) {
     .from('properties')
     .select('id')
     .eq('id', propertyId)
-    .eq('corretor_id', access.userId)
     .eq('organization_id', organizationId)
     .maybeSingle()
 
@@ -175,7 +174,6 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
   const supabase = await createClient()
   const payload = {
     organization_id: organizationId,
-    corretor_id: access.userId,
     title: values.title,
     property_type: values.propertyType,
     description: values.description || null,
@@ -214,14 +212,17 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
       .from('properties')
       .update(payload)
       .eq('id', propertyId)
-      .eq('corretor_id', access.userId)
       .eq('organization_id', organizationId)
       .select('id')
       .single()
 
     if (error || !data) return { error: 'Não foi possível atualizar o imóvel.' }
   } else {
-    const { data, error } = await supabase.from('properties').insert(payload).select('id').single()
+    const { data, error } = await supabase
+      .from('properties')
+      .insert({ ...payload, corretor_id: access.userId })
+      .select('id')
+      .single()
     if (error || !data) return { error: 'Não foi possível cadastrar o imóvel.' }
     propertyId = data.id
   }
@@ -253,7 +254,6 @@ export async function changePropertyStatus(propertyId: string, status: PropertyS
       deactivated_at: status === 'inactive' ? new Date().toISOString() : null,
     })
     .eq('id', propertyId)
-    .eq('corretor_id', access.userId)
     .eq('organization_id', organizationId)
 
   if (error) return { error: 'Não foi possível alterar o status.' }

@@ -6,7 +6,7 @@ import { PropertyForm } from '@/components/dashboard/property-form'
 import { PropertyMediaGrid } from '@/components/dashboard/property-media-grid'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { addSignedUrls } from '@/lib/properties-server'
 import { createClient } from '@/lib/supabase/server'
 import type { PropertyMediaRecord, PropertyRecord } from '@/lib/properties'
@@ -15,11 +15,11 @@ export const metadata = { title: 'Editar imóvel' }
 
 export default async function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const access = await requireRole('corretor')
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
   const [{ data: profile }, { data }, { data: mediaData }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    supabase.from('properties').select('*').eq('id', id).eq('corretor_id', access.userId).single(),
+    supabase.from('properties').select('*').eq('id', id).eq('organization_id', access.organizationId).single(),
     supabase.from('property_media').select('*').eq('property_id', id).order('position'),
   ])
 

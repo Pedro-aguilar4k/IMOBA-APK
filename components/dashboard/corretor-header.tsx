@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Building2, LogOut, Menu, Settings, Users } from 'lucide-react'
+import { Building2, Globe, LogOut, Menu, Settings, Users, UsersRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/client'
 
-interface CorretorHeaderProps { name: string; email: string }
+interface CorretorHeaderProps { name: string; email: string; isOwner?: boolean }
 
-export default function CorretorHeader({ name, email }: CorretorHeaderProps) {
+export default function CorretorHeader({ name, email, isOwner = false }: CorretorHeaderProps) {
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -33,6 +33,8 @@ export default function CorretorHeader({ name, email }: CorretorHeaderProps) {
             <DropdownMenuGroup>
               <DropdownMenuItem render={<Link href="/dashboard/corretor/properties" />}><Building2 />Imóveis</DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/dashboard/corretor/clients" />}><Users />Locatários</DropdownMenuItem>
+              {isOwner ? (<DropdownMenuItem render={<Link href="/dashboard/corretor/team" />}><UsersRound />Equipe</DropdownMenuItem>) : null}
+              {isOwner ? (<DropdownMenuItem render={<Link href="/dashboard/corretor/site" />}><Globe />Meu site</DropdownMenuItem>) : null}
               <DropdownMenuItem render={<Link href="/dashboard/corretor/profile" />}><Settings />Meu perfil</DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

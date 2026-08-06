@@ -3,7 +3,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export type AppRole = 'admin' | 'corretor' | 'locatario'
+export type AppRole = 'admin' | 'org_admin' | 'corretor' | 'locatario'
 
 export interface CurrentAccess {
   userId: string
@@ -44,7 +44,9 @@ export async function requireRole(role: AppRole) {
   if (!access) redirect('/auth/login')
   if (access.mustChangePassword) redirect('/auth/trocar-senha')
 
-  const assignment = access.roles.find((item) => item.role === role)
+  // org_admin é um superconjunto de corretor: pode operar tudo que o corretor opera.
+  const acceptedRoles: AppRole[] = role === 'corretor' ? ['corretor', 'org_admin'] : [role]
+  const assignment = access.roles.find((item) => acceptedRoles.includes(item.role))
   if (!assignment) redirect('/')
 
   return { ...access, assignment }
@@ -52,7 +54,8 @@ export async function requireRole(role: AppRole) {
 
 export function getDefaultRoute(roles: CurrentAccess['roles']) {
   if (roles.some((item) => item.role === 'admin')) return '/admin'
-  if (roles.some((item) => item.role === 'corretor')) return '/dashboard/corretor'
+  if (roles.some((item) => item.role === 'org_admin' || item.role === 'corretor'))
+    return '/dashboard/corretor'
   if (roles.some((item) => item.role === 'locatario')) return '/dashboard/locatario'
   return '/acesso-pendente'
 }

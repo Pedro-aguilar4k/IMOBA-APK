@@ -10,6 +10,11 @@ const roleContent: Record<AppRole, { title: string; description: string; href: s
     description: 'Gerenciar corretores e acessos da plataforma',
     href: '/admin',
   },
+  org_admin: {
+    title: 'Dono da imobiliária',
+    description: 'Gerenciar equipe, imóveis, contratos e locatários',
+    href: '/dashboard/corretor',
+  },
   corretor: {
     title: 'Corretor',
     description: 'Gerenciar imóveis, contratos e locatários',

@@ -1,22 +1,19 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  BarChart3,
   ChevronRight,
   ClipboardList,
-  DollarSign,
   Headphones,
-  Home,
   HousePlus,
   Info,
-  KeyRound,
   ReceiptText,
   TriangleAlert,
 } from 'lucide-react'
 import DashboardHeader from '@/components/dashboard/corretor/dashboard-header'
 import BottomNav from '@/components/dashboard/corretor/bottom-nav'
+import { ImpersonationBanner } from '@/components/dashboard/impersonation-banner'
 import { createClient } from '@/lib/supabase/server'
-import { requireRole } from '@/lib/auth/roles'
+import { requireOrgRole } from '@/lib/auth/tenant'
 import { getPropertyList } from '@/lib/properties-server'
 
 function firstName(name: string) {
@@ -36,13 +33,13 @@ function formatCompactBRL(cents: number) {
 }
 
 export default async function CorretorDashboard() {
-  const access = await requireRole('corretor')
+  const access = await requireOrgRole('corretor')
   const supabase = await createClient()
 
   const [{ data: profile }, properties, { data: contracts }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    getPropertyList(supabase, access.userId),
-    supabase.from('contracts').select('*').eq('corretor_id', access.userId),
+    getPropertyList(supabase, access.organizationId),
+    supabase.from('contracts').select('*').eq('organization_id', access.organizationId),
   ])
 
   const contractIds = (contracts ?? []).map((contract) => contract.id)
@@ -71,6 +68,16 @@ export default async function CorretorDashboard() {
   const name = profile?.name ?? 'Corretor'
   const email = profile?.email ?? access.email
 
+  let impersonatedOrgName: string | null = null
+  if (access.impersonation) {
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', access.organizationId)
+      .maybeSingle()
+    impersonatedOrgName = org?.name ?? 'imobiliária'
+  }
+
   const quickActions = [
     { label: 'Novo imóvel', href: '/dashboard/corretor/properties/new', icon: HousePlus },
     { label: 'Vistoria', href: '/dashboard/corretor/properties', icon: ClipboardList },
@@ -80,6 +87,7 @@ export default async function CorretorDashboard() {
 
   return (
     <div className="min-h-svh bg-muted/40">
+      {impersonatedOrgName ? <ImpersonationBanner organizationName={impersonatedOrgName} /> : null}
       <div className="mx-auto flex min-h-svh w-full max-w-md flex-col">
         <DashboardHeader name={name} email={email} notifications={overduePayments.length} />
 
@@ -110,32 +118,24 @@ export default async function CorretorDashboard() {
           {/* Cartões de estatística */}
           <section className="grid grid-cols-2 gap-4" aria-label="Resumo da operação">
             <StatCard
-              icon={<Home className="size-6" />}
-              iconClass="bg-accent text-primary"
               value={String(totalProperties)}
               valueClass="text-primary"
               title="Imóveis"
               subtitle="Cadastrados"
             />
             <StatCard
-              icon={<KeyRound className="size-6" />}
-              iconClass="bg-emerald-50 text-emerald-600"
               value={String(activeContracts)}
               valueClass="text-emerald-600"
               title="Alugados"
               subtitle="Ativos"
             />
             <StatCard
-              icon={<DollarSign className="size-6" />}
-              iconClass="bg-emerald-50 text-emerald-600"
               value={formatCompactBRL(toReceive)}
               valueClass="text-emerald-600"
               title="A receber"
               subtitle="Este mês"
             />
             <StatCard
-              icon={<BarChart3 className="size-6" />}
-              iconClass="bg-violet-50 text-violet-600"
               value={formatCompactBRL(revenue)}
               valueClass="text-foreground"
               title="Faturamento"
@@ -225,37 +225,28 @@ export default async function CorretorDashboard() {
           </section>
         </main>
 
-        <BottomNav />
+        <BottomNav isOwner={access.role === 'org_admin' || Boolean(access.impersonation)} />
       </div>
     </div>
   )
 }
 
 function StatCard({
-  icon,
-  iconClass,
   value,
   valueClass,
   title,
   subtitle,
 }: {
-  icon: React.ReactNode
-  iconClass: string
   value: string
   valueClass: string
   title: string
   subtitle: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
-      <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}>
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <p className={`whitespace-nowrap text-2xl font-bold leading-none ${valueClass}`}>{value}</p>
-        <p className="mt-1 text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
-      </div>
+    <div className="flex min-w-0 flex-col rounded-2xl border border-border bg-card p-4">
+      <p className={`truncate text-3xl font-bold leading-none ${valueClass}`}>{value}</p>
+      <p className="mt-2 text-sm font-semibold text-foreground">{title}</p>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </div>
   )
 }
