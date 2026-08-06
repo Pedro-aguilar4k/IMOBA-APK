@@ -51,7 +51,7 @@ export default function BottomNav() {
     const active = item.match === 'exact' ? pathname === item.href : pathname.startsWith(item.href)
     const Icon = item.icon
     return (
-      <li key={item.href} className="flex-1">
+      <li key={item.href} className="min-w-0">
         <Link
           href={item.href}
           aria-current={active ? 'page' : undefined}
@@ -61,7 +61,7 @@ export default function BottomNav() {
           )}
         >
           <Icon className="size-6" strokeWidth={active ? 2.4 : 2} />
-          <span>{item.label}</span>
+          <span className="truncate">{item.label}</span>
         </Link>
       </li>
     )
@@ -73,11 +73,11 @@ export default function BottomNav() {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <ul className="mx-auto flex w-full max-w-md items-end justify-between px-2">
+      <ul className="mx-auto grid w-full max-w-md grid-cols-5 items-end px-2">
         {leftItems.map(renderItem)}
 
         {/* FAB central: Novo chamado */}
-        <li className="flex-1">
+        <li className="min-w-0">
           <Link
             href="/dashboard/locatario/maintenance"
             className="flex flex-col items-center gap-1 px-1 py-1.5 text-xs font-medium text-foreground"
@@ -85,13 +85,13 @@ export default function BottomNav() {
             <span className="flex size-14 -translate-y-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-background transition-transform active:scale-95">
               <Plus className="size-7" strokeWidth={2.4} />
             </span>
-            <span className="-mt-3">Novo chamado</span>
+            <span className="-mt-3 truncate">Novo chamado</span>
           </Link>
         </li>
 
         {rightItems.map(renderItem)}
 
-        <li className="flex-1">
+        <li className="min-w-0">
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
