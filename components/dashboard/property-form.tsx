@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ImagePlus, LoaderCircle, X } from 'lucide-react'
-import { saveProperty, type PropertyActionResult } from '@/app/dashboard/corretor/properties/actions'
+import { saveProperty, type PropertyActionResult } from '@/app/(app)/dashboard/corretor/properties/actions'
 import {
   PROPERTY_FEATURES,
   PROPERTY_STATUSES,

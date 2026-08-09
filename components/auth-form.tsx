@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { resolveLoginIdentifier } from '@/app/auth/login/actions'
+import { resolveLoginIdentifier } from '@/app/(app)/auth/login/actions'
 import {
   authenticateBiometric,
   clearBiometric,

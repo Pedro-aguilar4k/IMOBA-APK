@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { createBrokerAccount, type BrokerAccountState } from '@/app/admin/actions'
+import { createBrokerAccount, type BrokerAccountState } from '@/app/(app)/admin/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

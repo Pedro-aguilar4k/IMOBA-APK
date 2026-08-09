@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Archive, LoaderCircle, Pencil } from 'lucide-react'
-import { changePropertyStatus } from '@/app/dashboard/corretor/properties/actions'
+import { changePropertyStatus } from '@/app/(app)/dashboard/corretor/properties/actions'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   AlertDialog,

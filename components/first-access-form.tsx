@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { Calendar, Eye, EyeOff, IdCard, Loader2, Lock, Mail } from 'lucide-react'
-import { activateFirstAccess, type FirstAccessState } from '@/app/primeiro-acesso/actions'
+import { activateFirstAccess, type FirstAccessState } from '@/app/(app)/primeiro-acesso/actions'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
