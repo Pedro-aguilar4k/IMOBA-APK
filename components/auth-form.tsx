@@ -58,7 +58,7 @@ export default function AuthForm({ activated = false, passwordChanged = false }:
   }, [])
 
   const goToApp = () => {
-    router.push('/')
+    router.push('/painel')
     router.refresh()
   }
 

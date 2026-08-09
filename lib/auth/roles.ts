@@ -45,7 +45,7 @@ export async function requireRole(role: AppRole) {
   if (access.mustChangePassword) redirect('/auth/trocar-senha')
 
   const assignment = access.roles.find((item) => item.role === role)
-  if (!assignment) redirect('/')
+  if (!assignment) redirect('/painel')
 
   return { ...access, assignment }
 }
