@@ -98,7 +98,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           <div className="min-w-0 flex-1">
             <Label htmlFor="hero-type" className="text-sm font-medium">Tipo de imóvel</Label>
             <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
-              <SelectTrigger id="hero-type" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="hero-type" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue>{(value) => TYPES.find((item) => item.value === value)?.label ?? 'Todos os imóveis'}</SelectValue></SelectTrigger>
               <SelectContent>{TYPES.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -108,14 +108,14 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           <div>
             <Label htmlFor="hero-min-area" className="text-sm font-medium">Área mínima</Label>
             <Select value={minArea} onValueChange={(value) => setMinArea(value ?? 'all')}>
-              <SelectTrigger id="hero-min-area" className="mt-1 h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="hero-min-area" className="mt-1 h-8 text-sm"><SelectValue>{(value) => AREA_OPTIONS.find((item) => item.value === value)?.label ?? 'Qualquer área'}</SelectValue></SelectTrigger>
               <SelectContent>{AREA_OPTIONS.map((item) => <SelectItem key={`min-${item.value}`} value={item.value}>{item.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
             <Label htmlFor="hero-max-area" className="text-sm font-medium">Área máxima</Label>
             <Select value={maxArea} onValueChange={(value) => setMaxArea(value ?? 'all')}>
-              <SelectTrigger id="hero-max-area" className="mt-1 h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="hero-max-area" className="mt-1 h-8 text-sm"><SelectValue>{(value) => (value === '1000' ? '1000+ m²' : value === 'all' || !value ? 'Qualquer área' : `Até ${value} m²`)}</SelectValue></SelectTrigger>
               <SelectContent>{AREA_OPTIONS.map((item) => <SelectItem key={`max-${item.value}`} value={item.value}>{item.value === '1000' ? '1000+ m²' : item.value === 'all' ? item.label : `Até ${item.value} m²`}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -126,7 +126,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           <div className="min-w-0 flex-1">
             <Label htmlFor="hero-bedrooms" className="text-sm font-medium">Quartos</Label>
             <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
-              <SelectTrigger id="hero-bedrooms" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="hero-bedrooms" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue>{(value) => (!value || value === 'all' ? 'Qualquer quantidade' : `${value} quarto${value === '1' ? '' : 's'} ou mais`)}</SelectValue></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Qualquer quantidade</SelectItem>
                 <SelectItem value="1">1 quarto ou mais</SelectItem>
