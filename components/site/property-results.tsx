@@ -35,7 +35,7 @@ export function PropertyResults({ properties, baseHref }: { properties: SiteProp
       <div className="flex flex-col gap-4 lg:flex-row">
         <div
           className={cn(
-            'h-[24rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm transition-all sm:h-[32rem] lg:h-[36rem]',
+            'h-[18rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm transition-all sm:h-[22rem] lg:h-[26rem]',
             showPanel ? 'lg:flex-1' : 'w-full',
           )}
         >
@@ -43,7 +43,7 @@ export function PropertyResults({ properties, baseHref }: { properties: SiteProp
         </div>
 
         {showPanel ? (
-          <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:h-[36rem] lg:w-[22rem]">
+          <aside className="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:h-[26rem] lg:w-[22rem]">
             <div className="flex h-full flex-col overflow-y-auto">
               <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-muted">
                 {selected.cover_url ? (
