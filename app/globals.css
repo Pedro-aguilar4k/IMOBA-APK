@@ -197,18 +197,26 @@
 }
 
 .nearby-poi-marker {
-  width: 0.85rem;
-  height: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
   padding: 0;
   border-radius: 999px;
   background: var(--chart-2);
+  color: var(--card);
   border: 2px solid var(--card);
-  box-shadow: 0 1px 6px rgb(15 23 42 / 24%);
+  box-shadow: 0 2px 8px rgb(15 23 42 / 28%);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
+.nearby-poi-marker svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
 .nearby-poi-marker:hover {
-  transform: scale(1.35);
+  transform: scale(1.2);
 }
 
 @layer base {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import {
@@ -85,6 +86,10 @@ export function PropertyNearby({ title, latitude, longitude, places }: PropertyN
       el.type = 'button'
       el.className = 'nearby-poi-marker'
       el.setAttribute('aria-label', place.name)
+      const PoiIcon = iconFor(place.category)
+      el.innerHTML = renderToStaticMarkup(
+        <PoiIcon width={14} height={14} strokeWidth={2.5} aria-hidden={true} />,
+      )
       el.onmouseenter = () => setActiveId(place.id)
       el.onmouseleave = () => setActiveId(null)
       new mapboxgl.Marker({ element: el, anchor: 'center' })
