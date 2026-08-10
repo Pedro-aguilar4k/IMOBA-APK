@@ -3,7 +3,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export type AppRole = 'admin' | 'corretor' | 'locatario'
+export type AppRole = 'superadmin' | 'admin' | 'corretor' | 'locatario'
 
 export interface CurrentAccess {
   userId: string
@@ -45,12 +45,25 @@ export async function requireRole(role: AppRole) {
   if (access.mustChangePassword) redirect('/auth/trocar-senha')
 
   const assignment = access.roles.find((item) => item.role === role)
-  if (!assignment) redirect('/')
+  if (!assignment) redirect('/painel')
 
   return { ...access, assignment }
 }
 
+export async function requireSuperadmin() {
+  const access = await getCurrentAccess()
+
+  if (!access) redirect('/auth/login')
+  if (access.mustChangePassword) redirect('/auth/trocar-senha')
+
+  const isSuperadmin = access.roles.some((item) => item.role === 'superadmin')
+  if (!isSuperadmin) redirect('/painel')
+
+  return access
+}
+
 export function getDefaultRoute(roles: CurrentAccess['roles']) {
+  if (roles.some((item) => item.role === 'superadmin')) return '/plataforma'
   if (roles.some((item) => item.role === 'admin')) return '/admin'
   if (roles.some((item) => item.role === 'corretor')) return '/dashboard/corretor'
   if (roles.some((item) => item.role === 'locatario')) return '/dashboard/locatario'

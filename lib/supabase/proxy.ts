@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const protectedPrefixes = ['/admin', '/dashboard', '/role-select', '/acesso-pendente']
+const protectedPrefixes = ['/admin', '/dashboard', '/plataforma', '/role-select', '/acesso-pendente']
 const guestOnlyPrefixes = ['/auth/login', '/primeiro-acesso', '/auth/sign-up']
 const passwordChangePath = '/auth/trocar-senha'
 

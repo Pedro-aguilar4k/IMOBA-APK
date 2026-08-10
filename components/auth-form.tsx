@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { resolveLoginIdentifier } from '@/app/auth/login/actions'
+import { resolveLoginIdentifier } from '@/app/(app)/auth/login/actions'
 import {
   authenticateBiometric,
   clearBiometric,
@@ -30,14 +30,19 @@ import {
 interface AuthFormProps {
   activated?: boolean
   passwordChanged?: boolean
+  initialError?: string
 }
 
-export default function AuthForm({ activated = false, passwordChanged = false }: AuthFormProps) {
+export default function AuthForm({
+  activated = false,
+  passwordChanged = false,
+  initialError = '',
+}: AuthFormProps) {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(initialError)
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const [biometricLoading, setBiometricLoading] = useState(false)
@@ -58,7 +63,7 @@ export default function AuthForm({ activated = false, passwordChanged = false }:
   }, [])
 
   const goToApp = () => {
-    router.push('/')
+    router.push('/painel')
     router.refresh()
   }
 

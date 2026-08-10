@@ -51,6 +51,9 @@ export const propertySchema = z.object({
   city: z.string().trim().min(2, 'Informe a cidade.').max(100),
   state: z.string().trim().length(2, 'Use a sigla com 2 letras.').transform((value) => value.toUpperCase()),
   zipCode: z.string().trim().regex(/^\d{5}-?\d{3}$/, 'Informe um CEP válido.'),
+  locationUrl: z.string().trim().url('Informe um link de localização válido.').optional().or(z.literal('')),
+  latitude: optionalNumber,
+  longitude: optionalNumber,
   usableArea: requiredNumber,
   totalArea: optionalNumber,
   bedrooms: requiredNumber.pipe(z.number().int()),
@@ -84,6 +87,10 @@ export interface PropertyRecord {
   city: string
   state: string
   zip_code: string | null
+  location_url: string | null
+  location_label: string | null
+  latitude: number | null
+  longitude: number | null
   property_type: string
   area_sqm: number | null
   usable_area_sqm: number | null
