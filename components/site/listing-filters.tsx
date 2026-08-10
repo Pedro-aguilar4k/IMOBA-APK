@@ -1,18 +1,13 @@
 'use client'
 
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Popover } from '@base-ui/react/popover'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 const PURPOSE_OPTIONS = [
   { value: 'all', label: 'Comprar e alugar' },
@@ -52,170 +47,74 @@ interface ListingFiltersProps {
   }
 }
 
-const segmentTriggerClass =
-  'h-auto w-full flex-col items-start justify-center gap-0.5 rounded-full border-0 bg-transparent px-6 py-3.5 text-left shadow-none transition-colors hover:bg-muted/70 focus-visible:ring-0 data-[size=default]:h-auto [&>svg]:hidden'
+type SegmentId = 'onde' | 'finalidade' | 'tipo' | 'quartos' | 'area'
+
+const popupClass =
+  'z-50 w-[min(20rem,calc(100vw-2rem))] origin-[var(--transform-origin)] rounded-3xl border border-border bg-popover p-5 text-popover-foreground shadow-xl outline-none transition-[transform,opacity] data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0'
 
 export function ListingFilters({ slug, initial }: ListingFiltersProps) {
   const router = useRouter()
   const [q, setQ] = useState(initial.q ?? '')
+  const [neighborhood, setNeighborhood] = useState(initial.neighborhood ?? '')
   const [purpose, setPurpose] = useState(initial.purpose ?? 'all')
   const [type, setType] = useState(initial.type ?? 'all')
   const [bedrooms, setBedrooms] = useState(initial.bedrooms ?? 'all')
   const [minArea, setMinArea] = useState(initial.minArea ?? '')
   const [maxArea, setMaxArea] = useState(initial.maxArea ?? '')
-  const [neighborhood, setNeighborhood] = useState(initial.neighborhood ?? '')
-  const [showMore, setShowMore] = useState(
-    Boolean(initial.minArea || initial.maxArea || initial.neighborhood),
-  )
+  const [openSegment, setOpenSegment] = useState<SegmentId | null>(null)
 
-  const advancedCount = [neighborhood.trim(), minArea.trim(), maxArea.trim()].filter(Boolean).length
+  function openState(id: SegmentId) {
+    return {
+      open: openSegment === id,
+      onOpenChange: (next: boolean) => setOpenSegment(next ? id : null),
+    }
+  }
 
-  function apply() {
+  function apply(closeAfter = true) {
     const params = new URLSearchParams()
     if (q.trim()) params.set('q', q.trim())
+    if (neighborhood.trim()) params.set('neighborhood', neighborhood.trim())
     if (purpose !== 'all') params.set('purpose', purpose)
     if (type !== 'all') params.set('type', type)
     if (bedrooms !== 'all') params.set('bedrooms', bedrooms)
     if (minArea.trim()) params.set('minArea', minArea.trim())
     if (maxArea.trim()) params.set('maxArea', maxArea.trim())
-    if (neighborhood.trim()) params.set('neighborhood', neighborhood.trim())
     const query = params.toString()
+    if (closeAfter) setOpenSegment(null)
     router.push(`/site/${slug}/imoveis${query ? `?${query}` : ''}`)
   }
 
+  const locationValue = [q.trim(), neighborhood.trim()].filter(Boolean).join(' · ') || 'Qualquer lugar'
+  const purposeLabel = PURPOSE_OPTIONS.find((o) => o.value === purpose)?.label ?? 'Comprar e alugar'
+  const typeLabel = TYPE_OPTIONS.find((o) => o.value === type)?.label ?? 'Todos os tipos'
+  const bedroomsLabel = BEDROOM_OPTIONS.find((o) => o.value === bedrooms)?.label ?? 'Qualquer'
+  const areaLabel =
+    minArea.trim() || maxArea.trim()
+      ? `${minArea.trim() || '0'} – ${maxArea.trim() || '∞'} m²`
+      : 'Qualquer'
+
   return (
-    <div className="flex flex-col gap-3">
-      {/* Barra de busca segmentada, estilo Airbnb */}
-      <div className="flex flex-col rounded-3xl border border-border bg-card shadow-sm md:flex-row md:items-stretch md:rounded-full md:py-1 md:pr-2 md:pl-1">
-        {/* Onde */}
-        <label
-          htmlFor="q"
-          className="flex flex-1 cursor-text flex-col justify-center rounded-full px-6 py-3.5 transition-colors hover:bg-muted/70"
-        >
-          <span className="text-xs font-semibold text-foreground">Onde</span>
-          <Input
-            id="q"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) apply()
-            }}
-            placeholder="Bairro, cidade ou título"
-            className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground"
-          />
-        </label>
-
-        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
-        <span className="h-px bg-border md:hidden" aria-hidden="true" />
-
-        {/* Finalidade */}
-        <div className="flex flex-1 flex-col justify-center">
-          <Select value={purpose} onValueChange={(value) => setPurpose(value ?? 'all')}>
-            <SelectTrigger id="purpose-filter" className={segmentTriggerClass}>
-              <span className="text-xs font-semibold text-foreground">Finalidade</span>
-              <SelectValue className="text-sm text-muted-foreground">
-                {(value) => PURPOSE_OPTIONS.find((o) => o.value === value)?.label ?? 'Comprar e alugar'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PURPOSE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
-        <span className="h-px bg-border md:hidden" aria-hidden="true" />
-
-        {/* Tipo */}
-        <div className="flex flex-1 flex-col justify-center">
-          <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
-            <SelectTrigger id="type-filter" className={segmentTriggerClass}>
-              <span className="text-xs font-semibold text-foreground">Tipo</span>
-              <SelectValue className="text-sm text-muted-foreground">
-                {(value) => TYPE_OPTIONS.find((o) => o.value === value)?.label ?? 'Todos os tipos'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {TYPE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
-        <span className="h-px bg-border md:hidden" aria-hidden="true" />
-
-        {/* Quartos */}
-        <div className="flex flex-1 flex-col justify-center">
-          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
-            <SelectTrigger id="bedrooms-filter" className={segmentTriggerClass}>
-              <span className="text-xs font-semibold text-foreground">Quartos</span>
-              <SelectValue className="text-sm text-muted-foreground">
-                {(value) => BEDROOM_OPTIONS.find((o) => o.value === value)?.label ?? 'Qualquer'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {BEDROOM_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Ações */}
-        <div className="flex items-center justify-between gap-2 px-4 py-3 md:justify-center md:px-2 md:py-0">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setShowMore((v) => !v)}
-            className="gap-2 rounded-full text-sm text-muted-foreground hover:text-foreground"
-            aria-expanded={showMore}
-          >
-            <SlidersHorizontal className="size-4" aria-hidden="true" />
-            <span className="md:hidden">Mais filtros</span>
-            {advancedCount > 0 ? (
-              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                {advancedCount}
-              </span>
-            ) : null}
-          </Button>
-          <Button
-            type="button"
-            onClick={apply}
-            className="size-12 shrink-0 rounded-full p-0"
-            aria-label="Buscar imóveis"
-          >
-            <Search className="size-5" aria-hidden="true" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Painel de filtros avançados */}
-      {showMore ? (
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">Mais filtros</span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowMore(false)}
-              className="gap-1 rounded-full text-muted-foreground"
-            >
-              <X className="size-4" aria-hidden="true" />
-              Fechar
-            </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+    <div className="flex flex-col rounded-3xl border border-border bg-card shadow-sm md:flex-row md:items-stretch md:rounded-full md:py-1 md:pr-2 md:pl-1">
+      {/* Onde */}
+      <Segment
+        label="Onde"
+        value={locationValue}
+        {...openState('onde')}
+        popup={
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="q">Busca livre</Label>
+              <Input
+                id="q"
+                autoFocus
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) apply()
+                }}
+                placeholder="Cidade ou título"
+              />
+            </div>
             <div className="grid gap-1.5">
               <Label htmlFor="neighborhood-filter">Bairro</Label>
               <Input
@@ -228,35 +127,198 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
                 placeholder="Ex.: Centro"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="min-area">Área mínima (m²)</Label>
-              <Input
-                id="min-area"
-                type="number"
-                min="0"
-                value={minArea}
-                onChange={(e) => setMinArea(e.target.value)}
-                placeholder="60"
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="max-area">Área máxima (m²)</Label>
-              <Input
-                id="max-area"
-                type="number"
-                min="0"
-                value={maxArea}
-                onChange={(e) => setMaxArea(e.target.value)}
-                placeholder="180"
-              />
-            </div>
           </div>
-          <Button onClick={apply} className="mt-4 h-11 w-full gap-2 rounded-full sm:w-auto sm:px-8">
-            <Search className="size-4" aria-hidden="true" />
-            Aplicar filtros
-          </Button>
-        </div>
-      ) : null}
+        }
+      />
+
+      <Divider />
+
+      {/* Finalidade */}
+      <Segment
+        label="Finalidade"
+        value={purposeLabel}
+        {...openState('finalidade')}
+        popup={
+          <OptionList
+            options={PURPOSE_OPTIONS}
+            selected={purpose}
+            onSelect={(value) => {
+              setPurpose(value)
+              setOpenSegment(null)
+            }}
+          />
+        }
+      />
+
+      <Divider />
+
+      {/* Tipo */}
+      <Segment
+        label="Tipo"
+        value={typeLabel}
+        {...openState('tipo')}
+        popup={
+          <OptionList
+            options={TYPE_OPTIONS}
+            selected={type}
+            onSelect={(value) => {
+              setType(value)
+              setOpenSegment(null)
+            }}
+          />
+        }
+      />
+
+      <Divider />
+
+      {/* Quartos */}
+      <Segment
+        label="Quartos"
+        value={bedroomsLabel}
+        {...openState('quartos')}
+        popup={
+          <div className="flex flex-wrap gap-2">
+            {BEDROOM_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => {
+                  setBedrooms(o.value)
+                  setOpenSegment(null)
+                }}
+                className={cn(
+                  'min-w-12 rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+                  bedrooms === o.value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card text-foreground hover:border-foreground',
+                )}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
+
+      <Divider />
+
+      {/* Área */}
+      <Segment
+        label="Área"
+        value={areaLabel}
+        {...openState('area')}
+        popup={
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="min-area">Mínima (m²)</Label>
+                <Input
+                  id="min-area"
+                  type="number"
+                  min="0"
+                  value={minArea}
+                  onChange={(e) => setMinArea(e.target.value)}
+                  placeholder="60"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="max-area">Máxima (m²)</Label>
+                <Input
+                  id="max-area"
+                  type="number"
+                  min="0"
+                  value={maxArea}
+                  onChange={(e) => setMaxArea(e.target.value)}
+                  placeholder="180"
+                />
+              </div>
+            </div>
+            <Button type="button" onClick={() => apply()} className="w-full gap-2 rounded-full">
+              <Search className="size-4" aria-hidden="true" />
+              Ver resultados
+            </Button>
+          </div>
+        }
+      />
+
+      {/* Botão de busca */}
+      <div className="flex items-center justify-end px-4 py-3 md:px-2 md:py-0">
+        <Button
+          type="button"
+          onClick={() => apply()}
+          className="h-12 shrink-0 gap-2 rounded-full px-5 md:size-12 md:px-0"
+          aria-label="Buscar imóveis"
+        >
+          <Search className="size-5" aria-hidden="true" />
+          <span className="md:hidden">Buscar</span>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function Divider() {
+  return (
+    <>
+      <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
+      <span className="h-px bg-border md:hidden" aria-hidden="true" />
+    </>
+  )
+}
+
+interface SegmentProps {
+  label: string
+  value: string
+  open: boolean
+  onOpenChange: (next: boolean) => void
+  popup: React.ReactNode
+}
+
+function Segment({ label, value, open, onOpenChange, popup }: SegmentProps) {
+  return (
+    <Popover.Root open={open} onOpenChange={onOpenChange}>
+      <Popover.Trigger
+        className={cn(
+          'flex flex-1 cursor-pointer flex-col justify-center rounded-full px-6 py-3 text-left transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          open && 'bg-muted/70',
+        )}
+      >
+        <span className="text-xs font-semibold text-foreground">{label}</span>
+        <span className="truncate text-sm text-muted-foreground">{value}</span>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner side="bottom" align="start" sideOffset={12}>
+          <Popover.Popup className={popupClass}>{popup}</Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}
+
+interface OptionListProps {
+  options: { value: string; label: string }[]
+  selected: string
+  onSelect: (value: string) => void
+}
+
+function OptionList({ options, selected, onSelect }: OptionListProps) {
+  return (
+    <div className="flex flex-col gap-1">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          onClick={() => onSelect(o.value)}
+          className={cn(
+            'flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition-colors',
+            selected === o.value
+              ? 'bg-primary/10 font-medium text-primary'
+              : 'text-foreground hover:bg-muted',
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
     </div>
   )
 }
