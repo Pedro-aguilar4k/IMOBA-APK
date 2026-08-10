@@ -114,11 +114,11 @@ export function PropertyNearby({ title, latitude, longitude, places }: PropertyN
   return (
     <section className="mt-10">
       <h2 className="font-display text-lg font-semibold text-foreground">Localização e o que tem por perto</h2>
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="mt-4 flex flex-col gap-6">
         {hasCoords && token ? (
           <div
             ref={containerRef}
-            className="h-80 w-full overflow-hidden rounded-2xl border border-border lg:h-full lg:min-h-96"
+            className="h-80 w-full overflow-hidden rounded-2xl border border-border md:h-96"
             aria-label={`Mapa da localização de ${title}`}
           />
         ) : (
@@ -129,7 +129,7 @@ export function PropertyNearby({ title, latitude, longitude, places }: PropertyN
 
         <div>
           {places.length ? (
-            <ul className="flex flex-col gap-2">
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {grouped.map(([category, items]) => {
                 const Icon = iconFor(category)
                 return (
