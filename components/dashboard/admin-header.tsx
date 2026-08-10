@@ -1,6 +1,6 @@
 'use client'
 
-import { CreditCard, LayoutDashboard, LogOut, Menu, Users } from 'lucide-react'
+import { CalendarDays, Contact, CreditCard, LayoutDashboard, LogOut, Menu, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/admin', label: 'Painel', icon: LayoutDashboard, exact: true },
+  { href: '/admin/agenda', label: 'Agenda', icon: CalendarDays, exact: false },
+  { href: '/admin/clientes', label: 'Clientes', icon: Contact, exact: false },
   { href: '/admin/corretores', label: 'Corretores', icon: Users, exact: false },
 ]
 
@@ -78,14 +80,19 @@ export function AdminHeader({ email, organizationName }: AdminHeaderProps) {
               <p className="truncate text-xs text-muted-foreground">{email}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem render={<Link href="/admin" />} className="sm:hidden">
-              <LayoutDashboard className="size-4" aria-hidden="true" />
-              Painel
-            </DropdownMenuItem>
-            <DropdownMenuItem render={<Link href="/admin/corretores" />} className="sm:hidden">
-              <Users className="size-4" aria-hidden="true" />
-              Corretores
-            </DropdownMenuItem>
+            {NAV.map((item) => {
+              const Icon = item.icon
+              return (
+                <DropdownMenuItem
+                  key={item.href}
+                  render={<Link href={item.href} />}
+                  className="sm:hidden"
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {item.label}
+                </DropdownMenuItem>
+              )
+            })}
             <DropdownMenuSeparator className="sm:hidden" />
             <DropdownMenuItem render={<Link href="/admin/conta" />}>
               <CreditCard className="size-4" aria-hidden="true" />

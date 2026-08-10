@@ -35,6 +35,30 @@ export interface SiteVisitRow {
   device: 'desktop' | 'mobile' | 'tablet' | null
 }
 
+export type ClientStatus = 'ativo' | 'inativo'
+
+export interface ClientRow {
+  id: string
+  organization_id: string
+  lead_id: string | null
+  corretor_id: string | null
+  name: string
+  email: string | null
+  phone: string | null
+  document: string | null
+  notes: string | null
+  status: ClientStatus
+  created_at: string
+  updated_at: string
+}
+
+/** Leads considerados qualificados — prontos para virar cliente. */
+export const QUALIFIED_LEAD_STATUSES: LeadStatus[] = ['visita', 'proposta', 'fechado']
+
+export function isQualifiedLead(status: LeadStatus): boolean {
+  return QUALIFIED_LEAD_STATUSES.includes(status)
+}
+
 /** Etapas do funil, na ordem (perdido é tratado à parte). */
 export const FUNNEL_STAGES: Exclude<LeadStatus, 'perdido'>[] = [
   'novo',
@@ -130,4 +154,45 @@ export function formatDateTime(iso: string): string {
 
 export function formatShortDate(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(iso))
+}
+
+export function formatTime(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(
+    new Date(iso),
+  )
+}
+
+/** Rótulo de dia legível, com "Hoje"/"Amanhã" quando aplicável. */
+export function formatDayLabel(iso: string): string {
+  const d = new Date(iso)
+  d.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diff = Math.round((d.getTime() - today.getTime()) / 86400000)
+  if (diff === 0) return 'Hoje'
+  if (diff === 1) return 'Amanhã'
+  return new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+  }).format(new Date(iso))
+}
+
+/** Agrupa agendamentos por dia (YYYY-MM-DD), preservando a ordem cronológica. */
+export function groupAppointmentsByDay<T extends { scheduled_at: string }>(
+  appointments: T[],
+): { day: string; label: string; items: T[] }[] {
+  const groups = new Map<string, T[]>()
+  for (const appointment of appointments) {
+    const key = new Date(appointment.scheduled_at).toISOString().slice(0, 10)
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key)!.push(appointment)
+  }
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, items]) => ({
+      day,
+      label: formatDayLabel(`${day}T00:00:00`),
+      items,
+    }))
 }
