@@ -4,7 +4,13 @@ import AuthForm from '@/components/auth-form'
 import { createClient } from '@/lib/supabase/server'
 
 interface LoginPageProps {
-  searchParams: Promise<{ activated?: string; passwordChanged?: string }>
+  searchParams: Promise<{ activated?: string; passwordChanged?: string; erro?: string }>
+}
+
+const ACTIVATION_ERRORS: Record<string, string> = {
+  token_invalido: 'Link de ativação inválido. Verifique se copiou o endereço completo.',
+  token_expirado: 'Seu link de ativação expirou. Entre em contato com o suporte.',
+  ativacao_falhou: 'Não foi possível ativar seu acesso. Tente novamente ou contate o suporte.',
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -33,6 +39,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <AuthForm
           activated={params.activated === '1'}
           passwordChanged={params.passwordChanged === '1'}
+          initialError={params.erro ? (ACTIVATION_ERRORS[params.erro] ?? '') : ''}
         />
       </div>
     </main>

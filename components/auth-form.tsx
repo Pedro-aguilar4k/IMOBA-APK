@@ -30,14 +30,19 @@ import {
 interface AuthFormProps {
   activated?: boolean
   passwordChanged?: boolean
+  initialError?: string
 }
 
-export default function AuthForm({ activated = false, passwordChanged = false }: AuthFormProps) {
+export default function AuthForm({
+  activated = false,
+  passwordChanged = false,
+  initialError = '',
+}: AuthFormProps) {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(initialError)
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const [biometricLoading, setBiometricLoading] = useState(false)

@@ -241,7 +241,7 @@ export async function finalizeSubscription(
       .from('organizations')
       .insert({
         name: sub.company_name ?? 'Imobiliária',
-        cnpj: sub.tax_id ?? null,
+        cnpj: sub.tax_id ?? '',
         created_by: sub.owner_user_id,
       })
       .select('id')
