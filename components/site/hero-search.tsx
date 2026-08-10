@@ -67,11 +67,11 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
         </Button>
       </div>
 
-      <h2 className="mt-6 text-balance font-display text-3xl font-semibold leading-tight text-primary">
+      <h2 className="mt-4 text-balance font-display text-2xl font-semibold leading-tight text-primary">
         Encontre seu novo imóvel em poucos cliques
       </h2>
 
-      <div className="mt-6 flex border-b border-border">
+      <div className="mt-4 flex border-b border-border">
         {(['aluguel', 'venda'] as const).map((value) => (
           <button
             key={value}
@@ -88,7 +88,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
       </div>
 
       <div className="divide-y divide-border">
-        <div className="flex gap-3 py-4">
+        <div className="flex gap-3 py-3">
           <MapPin className="mt-0.5 size-5 shrink-0 text-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <Label htmlFor="hero-neighborhood" className="text-sm font-medium">Bairro</Label>
@@ -96,7 +96,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           </div>
         </div>
 
-        <div className="flex gap-3 py-4">
+        <div className="flex gap-3 py-3">
           <Building2 className="mt-0.5 size-5 shrink-0 text-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <Label htmlFor="hero-type" className="text-sm font-medium">Tipo de imóvel</Label>
@@ -107,7 +107,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 py-4">
+        <div className="grid grid-cols-2 gap-4 py-3">
           <div>
             <Label htmlFor="hero-min-area" className="text-sm font-medium">Área mínima</Label>
             <Select value={minArea} onValueChange={(value) => setMinArea(value ?? 'all')}>
@@ -124,7 +124,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           </div>
         </div>
 
-        <div className="flex gap-3 py-4">
+        <div className="flex gap-3 py-3">
           <span className="mt-0.5 flex size-5 items-center justify-center text-sm font-semibold" aria-hidden="true">$</span>
           <div className="min-w-0 flex-1">
             <Label htmlFor="hero-bedrooms" className="text-sm font-medium">Quartos</Label>
@@ -142,7 +142,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
         </div>
       </div>
 
-      <Button onClick={search} className="mt-5 h-12 w-full gap-2">
+      <Button onClick={search} className="mt-4 h-12 w-full gap-2">
         Buscar imóvel
         <ArrowRight data-icon="inline-end" />
       </Button>
