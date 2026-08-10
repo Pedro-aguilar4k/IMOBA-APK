@@ -37,12 +37,17 @@ function formatCompactBRL(cents: number) {
 
 export default async function CorretorDashboard() {
   const access = await requireRole('corretor')
+  const organizationId = access.assignment.organization_id ?? ''
   const supabase = await createClient()
 
   const [{ data: profile }, properties, { data: contracts }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    getPropertyList(supabase, access.userId),
-    supabase.from('contracts').select('*').eq('corretor_id', access.userId),
+    getPropertyList(supabase, access.userId, organizationId),
+    supabase
+      .from('contracts')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('corretor_id', access.userId),
   ])
 
   const contractIds = (contracts ?? []).map((contract) => contract.id)

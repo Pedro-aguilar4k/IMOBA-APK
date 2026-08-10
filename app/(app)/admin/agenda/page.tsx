@@ -13,7 +13,7 @@ export default async function AgendaPage() {
 
   const nowIso = new Date().toISOString()
 
-  const [{ data: organization }, { data: appointments }, { data: brokerRoles }, { data: leads }, users] =
+  const [{ data: organization }, { data: appointments }, { data: brokerRoles }, { data: leads }] =
     await Promise.all([
       organizationId
         ? admin.from('organizations').select('name').eq('id', organizationId).maybeSingle()
@@ -32,7 +32,7 @@ export default async function AgendaPage() {
             .select('user_id')
             .eq('role', 'corretor')
             .eq('organization_id', organizationId)
-        : Promise.resolve({ data: [] }),
+        : Promise.resolve({ data: [] as { user_id: string }[] }),
       organizationId
         ? admin
             .from('site_leads')
@@ -41,18 +41,28 @@ export default async function AgendaPage() {
             .in('status', ['novo', 'contato', 'visita', 'proposta'])
             .order('created_at', { ascending: false })
         : Promise.resolve({ data: [] as Pick<SiteLeadRow, 'id' | 'name' | 'status'>[] }),
-      admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ])
 
-  const userById = new Map((users?.data?.users ?? []).map((u) => [u.id, u]))
-  const corretorName = (id: string | null) =>
-    id ? String(userById.get(id)?.user_metadata?.name ?? 'Corretor') : ''
-
   const appointmentRows = (appointments ?? []) as AppointmentRow[]
-  const brokers = (brokerRoles ?? [])
-    .map((r) => {
-      const user = userById.get(r.user_id)
-      return user ? { id: user.id, name: String(user.user_metadata?.name ?? user.email ?? 'Corretor') } : null
+  const brokerIds = ((brokerRoles ?? []) as { user_id: string }[]).map((r) => r.user_id)
+
+  // Nomes apenas dos corretores da organização + envolvidos na agenda (escopo do tenant).
+  const relevantIds = [
+    ...new Set([
+      ...brokerIds,
+      ...appointmentRows.map((a) => a.corretor_id).filter((id): id is string => Boolean(id)),
+    ]),
+  ]
+  const { data: profiles } = relevantIds.length
+    ? await admin.from('profiles').select('id, name, email').in('id', relevantIds)
+    : { data: [] as { id: string; name: string | null; email: string | null }[] }
+  const profById = new Map((profiles ?? []).map((p) => [p.id, p]))
+  const corretorName = (id: string | null) => (id ? (profById.get(id)?.name ?? 'Corretor') : '')
+
+  const brokers = brokerIds
+    .map((id) => {
+      const p = profById.get(id)
+      return p ? { id, name: p.name ?? p.email ?? 'Corretor' } : null
     })
     .filter((b): b is { id: string; name: string } => Boolean(b))
 

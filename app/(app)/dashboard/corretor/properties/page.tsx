@@ -11,10 +11,11 @@ export const metadata = { title: 'Imóveis' }
 
 export default async function PropertiesPage() {
   const access = await requireRole('corretor')
+  const organizationId = access.assignment.organization_id ?? ''
   const supabase = await createClient()
   const [{ data: profile }, properties] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
-    getPropertyList(supabase, access.userId),
+    getPropertyList(supabase, access.userId, organizationId),
   ])
 
   return (

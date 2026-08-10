@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
   const sinceIso = since.toISOString()
   const nowIso = new Date().toISOString()
 
-  const [{ data: organization }, { data: visits }, { data: leads }, { data: appointments }, users] =
+  const [{ data: organization }, { data: visits }, { data: leads }, { data: appointments }] =
     await Promise.all([
       organizationId
         ? admin
@@ -66,16 +66,21 @@ export default async function AdminDashboardPage() {
             .order('scheduled_at', { ascending: true })
             .limit(5)
         : Promise.resolve({ data: [] as AppointmentRow[] }),
-      admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ])
 
   const visitRows = (visits ?? []) as Pick<SiteVisitRow, 'visited_at'>[]
   const leadRows = (leads ?? []) as SiteLeadRow[]
   const appointmentRows = (appointments ?? []) as AppointmentRow[]
 
-  const userById = new Map((users?.data?.users ?? []).map((u) => [u.id, u]))
-  const corretorName = (id: string | null) =>
-    id ? String(userById.get(id)?.user_metadata?.name ?? '') : ''
+  // Resolve nomes apenas dos corretores presentes na agenda (escopo do tenant).
+  const corretorIds = [
+    ...new Set(appointmentRows.map((a) => a.corretor_id).filter((id): id is string => Boolean(id))),
+  ]
+  const { data: corretorProfiles } = corretorIds.length
+    ? await admin.from('profiles').select('id, name').in('id', corretorIds)
+    : { data: [] as { id: string; name: string | null }[] }
+  const nameById = new Map((corretorProfiles ?? []).map((p) => [p.id, p.name]))
+  const corretorName = (id: string | null) => (id ? (nameById.get(id) ?? '') : '')
 
   // Métricas do período
   const totalVisits = visitRows.length

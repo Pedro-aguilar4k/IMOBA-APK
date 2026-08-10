@@ -4,10 +4,16 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PropertyMediaRecord, PropertyRecord } from '@/lib/properties'
 import type { PropertyListItem } from '@/components/dashboard/properties-list'
 
-export async function getPropertyList(supabase: SupabaseClient, corretorId: string): Promise<PropertyListItem[]> {
+export async function getPropertyList(
+  supabase: SupabaseClient,
+  corretorId: string,
+  organizationId: string,
+): Promise<PropertyListItem[]> {
+  // Escopo obrigatório por tenant: nunca busca fora da organização atual.
   const { data: properties, error } = await supabase
     .from('properties')
     .select('id, title, address, neighborhood, city, state, bedrooms, bathrooms, usable_area_sqm, area_sqm, rent_value, status')
+    .eq('organization_id', organizationId)
     .eq('corretor_id', corretorId)
     .order('created_at', { ascending: false })
 
