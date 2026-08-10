@@ -107,7 +107,9 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
           <Label htmlFor="purpose-filter">Finalidade</Label>
           <Select value={purpose} onValueChange={(value) => setPurpose(value ?? 'all')}>
             <SelectTrigger id="purpose-filter">
-              <SelectValue />
+              <SelectValue>
+                {(value) => PURPOSE_OPTIONS.find((o) => o.value === value)?.label ?? 'Comprar e alugar'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {PURPOSE_OPTIONS.map((o) => (
@@ -122,7 +124,9 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
           <Label htmlFor="type-filter">Tipo</Label>
           <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
             <SelectTrigger id="type-filter">
-              <SelectValue />
+              <SelectValue>
+                {(value) => TYPE_OPTIONS.find((o) => o.value === value)?.label ?? 'Todos os tipos'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {TYPE_OPTIONS.map((o) => (
@@ -137,7 +141,9 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
           <Label htmlFor="bedrooms-filter">Quartos</Label>
           <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
             <SelectTrigger id="bedrooms-filter">
-              <SelectValue />
+              <SelectValue>
+                {(value) => BEDROOM_OPTIONS.find((o) => o.value === value)?.label ?? 'Qualquer'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BEDROOM_OPTIONS.map((o) => (

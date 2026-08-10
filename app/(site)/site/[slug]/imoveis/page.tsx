@@ -53,7 +53,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <ListingFilters
           slug={slug}
           initial={{ q: sp.q, purpose: sp.purpose, type: sp.type, bedrooms: sp.bedrooms, minArea: sp.minArea, maxArea: sp.maxArea, neighborhood: sp.neighborhood }}
