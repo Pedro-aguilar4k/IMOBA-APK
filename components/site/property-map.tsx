@@ -33,6 +33,9 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [-46.6333, -23.5505],
       zoom: 11,
+      // Trava o afastamento no nível de cidade/região metropolitana e limita a aproximação.
+      minZoom: 9,
+      maxZoom: 17,
       attributionControl: true,
     })
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')

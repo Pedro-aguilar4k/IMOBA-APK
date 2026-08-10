@@ -41,18 +41,6 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
     <div className="bg-background">
       <VisitTracker organizationId={org.id} path={`/site/${slug}/imoveis`} />
 
-      <div className="border-b border-border bg-muted/40">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground text-balance sm:text-4xl">
-            Encontre seu próximo imóvel
-          </h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground leading-relaxed">
-            Explore o portfólio completo da {org.name}. Use os filtros para chegar mais rápido ao
-            imóvel ideal.
-          </p>
-        </div>
-      </div>
-
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <ListingFilters
           slug={slug}
