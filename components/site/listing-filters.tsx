@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search, SlidersHorizontal, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -52,6 +52,9 @@ interface ListingFiltersProps {
   }
 }
 
+const segmentTriggerClass =
+  'h-auto w-full flex-col items-start justify-center gap-0.5 rounded-full border-0 bg-transparent px-6 py-3.5 text-left shadow-none transition-colors hover:bg-muted/70 focus-visible:ring-0 data-[size=default]:h-auto [&>svg]:hidden'
+
 export function ListingFilters({ slug, initial }: ListingFiltersProps) {
   const router = useRouter()
   const [q, setQ] = useState(initial.q ?? '')
@@ -61,6 +64,11 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
   const [minArea, setMinArea] = useState(initial.minArea ?? '')
   const [maxArea, setMaxArea] = useState(initial.maxArea ?? '')
   const [neighborhood, setNeighborhood] = useState(initial.neighborhood ?? '')
+  const [showMore, setShowMore] = useState(
+    Boolean(initial.minArea || initial.maxArea || initial.neighborhood),
+  )
+
+  const advancedCount = [neighborhood.trim(), minArea.trim(), maxArea.trim()].filter(Boolean).length
 
   function apply() {
     const params = new URLSearchParams()
@@ -76,14 +84,15 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex items-center gap-2 text-sm font-medium text-foreground">
-        <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
-        Filtrar imóveis
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 lg:items-end">
-        <div className="grid gap-1.5 lg:col-span-2">
-          <Label htmlFor="q">Busca</Label>
+    <div className="flex flex-col gap-3">
+      {/* Barra de busca segmentada, estilo Airbnb */}
+      <div className="flex flex-col rounded-3xl border border-border bg-card shadow-sm md:flex-row md:items-stretch md:rounded-full md:py-1 md:pr-2 md:pl-1">
+        {/* Onde */}
+        <label
+          htmlFor="q"
+          className="flex flex-1 cursor-text flex-col justify-center rounded-full px-6 py-3.5 transition-colors hover:bg-muted/70"
+        >
+          <span className="text-xs font-semibold text-foreground">Onde</span>
           <Input
             id="q"
             value={q}
@@ -92,25 +101,19 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
               if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) apply()
             }}
             placeholder="Bairro, cidade ou título"
+            className="h-auto border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground"
           />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="neighborhood-filter">Bairro</Label>
-          <Input id="neighborhood-filter" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Ex.: Centro" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="min-area">Área mínima (m²)</Label>
-          <Input id="min-area" type="number" min="0" value={minArea} onChange={(e) => setMinArea(e.target.value)} placeholder="60" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="max-area">Área máxima (m²)</Label>
-          <Input id="max-area" type="number" min="0" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} placeholder="180" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="purpose-filter">Finalidade</Label>
+        </label>
+
+        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
+        <span className="h-px bg-border md:hidden" aria-hidden="true" />
+
+        {/* Finalidade */}
+        <div className="flex flex-1 flex-col justify-center">
           <Select value={purpose} onValueChange={(value) => setPurpose(value ?? 'all')}>
-            <SelectTrigger id="purpose-filter">
-              <SelectValue>
+            <SelectTrigger id="purpose-filter" className={segmentTriggerClass}>
+              <span className="text-xs font-semibold text-foreground">Finalidade</span>
+              <SelectValue className="text-sm text-muted-foreground">
                 {(value) => PURPOSE_OPTIONS.find((o) => o.value === value)?.label ?? 'Comprar e alugar'}
               </SelectValue>
             </SelectTrigger>
@@ -123,11 +126,16 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="type-filter">Tipo</Label>
+
+        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
+        <span className="h-px bg-border md:hidden" aria-hidden="true" />
+
+        {/* Tipo */}
+        <div className="flex flex-1 flex-col justify-center">
           <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
-            <SelectTrigger id="type-filter">
-              <SelectValue>
+            <SelectTrigger id="type-filter" className={segmentTriggerClass}>
+              <span className="text-xs font-semibold text-foreground">Tipo</span>
+              <SelectValue className="text-sm text-muted-foreground">
                 {(value) => TYPE_OPTIONS.find((o) => o.value === value)?.label ?? 'Todos os tipos'}
               </SelectValue>
             </SelectTrigger>
@@ -140,11 +148,16 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="bedrooms-filter">Quartos</Label>
+
+        <span className="mx-2 hidden w-px self-center bg-border md:block md:h-8" aria-hidden="true" />
+        <span className="h-px bg-border md:hidden" aria-hidden="true" />
+
+        {/* Quartos */}
+        <div className="flex flex-1 flex-col justify-center">
           <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
-            <SelectTrigger id="bedrooms-filter">
-              <SelectValue>
+            <SelectTrigger id="bedrooms-filter" className={segmentTriggerClass}>
+              <span className="text-xs font-semibold text-foreground">Quartos</span>
+              <SelectValue className="text-sm text-muted-foreground">
                 {(value) => BEDROOM_OPTIONS.find((o) => o.value === value)?.label ?? 'Qualquer'}
               </SelectValue>
             </SelectTrigger>
@@ -157,11 +170,93 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Ações */}
+        <div className="flex items-center justify-between gap-2 px-4 py-3 md:justify-center md:px-2 md:py-0">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setShowMore((v) => !v)}
+            className="gap-2 rounded-full text-sm text-muted-foreground hover:text-foreground"
+            aria-expanded={showMore}
+          >
+            <SlidersHorizontal className="size-4" aria-hidden="true" />
+            <span className="md:hidden">Mais filtros</span>
+            {advancedCount > 0 ? (
+              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                {advancedCount}
+              </span>
+            ) : null}
+          </Button>
+          <Button
+            type="button"
+            onClick={apply}
+            className="size-12 shrink-0 rounded-full p-0"
+            aria-label="Buscar imóveis"
+          >
+            <Search className="size-5" aria-hidden="true" />
+          </Button>
+        </div>
       </div>
-      <Button onClick={apply} className="mt-4 h-11 w-full gap-2 rounded-full md:w-auto md:px-8">
-        <Search className="size-4" aria-hidden="true" />
-        Aplicar filtros
-      </Button>
+
+      {/* Painel de filtros avançados */}
+      {showMore ? (
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Mais filtros</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMore(false)}
+              className="gap-1 rounded-full text-muted-foreground"
+            >
+              <X className="size-4" aria-hidden="true" />
+              Fechar
+            </Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="neighborhood-filter">Bairro</Label>
+              <Input
+                id="neighborhood-filter"
+                value={neighborhood}
+                onChange={(e) => setNeighborhood(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) apply()
+                }}
+                placeholder="Ex.: Centro"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="min-area">Área mínima (m²)</Label>
+              <Input
+                id="min-area"
+                type="number"
+                min="0"
+                value={minArea}
+                onChange={(e) => setMinArea(e.target.value)}
+                placeholder="60"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="max-area">Área máxima (m²)</Label>
+              <Input
+                id="max-area"
+                type="number"
+                min="0"
+                value={maxArea}
+                onChange={(e) => setMaxArea(e.target.value)}
+                placeholder="180"
+              />
+            </div>
+          </div>
+          <Button onClick={apply} className="mt-4 h-11 w-full gap-2 rounded-full sm:w-auto sm:px-8">
+            <Search className="size-4" aria-hidden="true" />
+            Aplicar filtros
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }
