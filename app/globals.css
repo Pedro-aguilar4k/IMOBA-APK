@@ -185,6 +185,32 @@
   transform: scale(1.08);
 }
 
+.nearby-home-marker {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px 999px 999px 0;
+  background: var(--primary);
+  border: 2px solid var(--card);
+  box-shadow: 0 3px 12px rgb(15 23 42 / 32%);
+  transform: rotate(-45deg);
+  cursor: pointer;
+}
+
+.nearby-poi-marker {
+  width: 0.85rem;
+  height: 0.85rem;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--chart-2);
+  border: 2px solid var(--card);
+  box-shadow: 0 1px 6px rgb(15 23 42 / 24%);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.nearby-poi-marker:hover {
+  transform: scale(1.35);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

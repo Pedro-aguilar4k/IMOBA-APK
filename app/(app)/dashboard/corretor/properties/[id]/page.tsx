@@ -4,6 +4,8 @@ import { ArrowLeft, Bath, BedDouble, Building2, Car, MapPin, Ruler } from 'lucid
 import CorretorHeader from '@/components/dashboard/corretor-header'
 import { PropertyActions } from '@/components/dashboard/property-actions'
 import { PropertyMediaGrid } from '@/components/dashboard/property-media-grid'
+import { NearbyPlacesEditor } from '@/components/dashboard/nearby-places-editor'
+import { listNearbyPlaces } from '@/app/(app)/dashboard/corretor/properties/nearby-actions'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,6 +30,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
   if (!data) notFound()
   const property = data as PropertyRecord
   const media = await addSignedUrls(supabase, (mediaData ?? []) as PropertyMediaRecord[])
+  const nearbyPlaces = await listNearbyPlaces(property.id)
 
   return (
     <div className="min-h-svh bg-background">
@@ -44,6 +47,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         </div>
 
         <PropertyMediaGrid media={media} />
+
+        <NearbyPlacesEditor
+          propertyId={property.id}
+          hasCoords={property.latitude != null && property.longitude != null}
+          places={nearbyPlaces}
+        />
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
           <div className="flex flex-col gap-6">

@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { LeadForm } from '@/components/site/lead-form'
 import { PropertyGallery } from '@/components/site/property-gallery'
+import { PropertyNearby } from '@/components/site/property-nearby'
 import { VisitTracker } from '@/components/site/visit-tracker'
 import { Badge } from '@/components/ui/badge'
 import { formatBRL, formatBRLShort, propertyTypeLabel, purposeBadge } from '@/lib/site/format'
-import { getOrganizationBySlug, getPublicProperty } from '@/lib/site/site-data'
+import { getOrganizationBySlug, getPropertyNearbyPlaces, getPublicProperty } from '@/lib/site/site-data'
 
 interface DetailPageProps {
   params: Promise<{ slug: string; id: string }>
@@ -27,6 +28,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
   if (!org) notFound()
   const property = await getPublicProperty(org.id, id)
   if (!property) notFound()
+  const nearbyPlaces = await getPropertyNearbyPlaces(org.id, id)
 
   const isSale = property.listing_purpose === 'venda'
   const price = isSale ? formatBRLShort(property.sale_value) : formatBRL(property.rent_value)
@@ -102,6 +104,13 @@ export default async function DetailPage({ params }: DetailPageProps) {
                 </p>
               </div>
             )}
+
+            <PropertyNearby
+              title={property.title}
+              latitude={property.latitude}
+              longitude={property.longitude}
+              places={nearbyPlaces}
+            />
           </div>
         </div>
 

@@ -213,3 +213,28 @@ export function priceFor(property: Pick<SiteProperty, 'listing_purpose' | 'rent_
   if (property.listing_purpose === 'venda') return { value: property.sale_value, suffix: '' }
   return { value: property.rent_value, suffix: '/mês' }
 }
+
+export interface SiteNearbyPlace {
+  id: string
+  name: string
+  category: string
+  distance_m: number | null
+  latitude: number | null
+  longitude: number | null
+}
+
+/** Pontos próximos de um imóvel público (mercado, farmácia, escola...). */
+export async function getPropertyNearbyPlaces(
+  organizationId: string,
+  propertyId: string,
+): Promise<SiteNearbyPlace[]> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('property_nearby_places')
+    .select('id, name, category, distance_m, latitude, longitude')
+    .eq('organization_id', organizationId)
+    .eq('property_id', propertyId)
+    .order('distance_m', { nullsFirst: false })
+
+  return (data ?? []) as SiteNearbyPlace[]
+}
