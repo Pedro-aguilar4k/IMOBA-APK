@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { propertySchema, reaisToCents, type PropertyStatus } from '@/lib/properties'
 import { requireRole } from '@/lib/auth/roles'
+import { autoPopulateNearbyPlaces } from './nearby-actions'
 
 export interface PropertyActionResult {
   success?: string
@@ -233,6 +234,15 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
     propertyId = data.id
   }
 
+  // Ao publicar com localização, o sistema já busca os pontos próximos automaticamente.
+  if (propertyId && values.status === 'available' && values.latitude != null && values.longitude != null) {
+    try {
+      await autoPopulateNearbyPlaces(propertyId)
+    } catch {
+      // Não bloqueia o salvamento do imóvel se a busca automática falhar.
+    }
+  }
+
   revalidatePath('/dashboard/corretor')
   revalidatePath('/dashboard/corretor/properties')
   revalidatePath(`/dashboard/corretor/properties/${propertyId}`)
@@ -252,7 +262,7 @@ export async function changePropertyStatus(propertyId: string, status: PropertyS
   if (!organizationId || !allowed.includes(status)) return { error: 'Alteração inválida.' }
 
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('properties')
     .update({
       status,
@@ -262,8 +272,19 @@ export async function changePropertyStatus(propertyId: string, status: PropertyS
     .eq('id', propertyId)
     .eq('corretor_id', access.userId)
     .eq('organization_id', organizationId)
+    .select('latitude, longitude')
+    .single()
 
-  if (error) return { error: 'Não foi possível alterar o status.' }
+  if (error || !updated) return { error: 'Não foi possível alterar o status.' }
+
+  // Ao publicar com localização, o sistema já busca os pontos próximos automaticamente.
+  if (status === 'available' && updated.latitude != null && updated.longitude != null) {
+    try {
+      await autoPopulateNearbyPlaces(propertyId)
+    } catch {
+      // Não bloqueia a mudança de status se a busca automática falhar.
+    }
+  }
 
   revalidatePath('/dashboard/corretor')
   revalidatePath(`/dashboard/corretor/properties/${propertyId}`)

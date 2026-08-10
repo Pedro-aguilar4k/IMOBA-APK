@@ -129,10 +129,15 @@ export async function importNearbyPlaces(
     .select('name, category', { count: 'exact' })
     .eq('property_id', propertyId)
 
-  const seen = new Set((existing ?? []).map((e) => `${e.category}:${e.name.toLowerCase()}`))
+  const seen = new Set((existing ?? []).map((e) => `${e.category}:${normalizeName(e.name)}`))
   let position = count ?? 0
   const rows = valid
-    .filter((s) => !seen.has(`${s.category}:${s.name.toLowerCase()}`))
+    .filter((s) => {
+      const key = `${s.category}:${normalizeName(s.name)}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
     .slice(0, MAX_PLACES - (count ?? 0))
     .map((s) => ({
       property_id: propertyId,
@@ -153,6 +158,64 @@ export async function importNearbyPlaces(
   if (error) return { error: 'Não foi possível importar os pontos.' }
   revalidateProperty(propertyId)
   return { success: true, added: rows.length }
+}
+
+/**
+ * Preenche automaticamente os pontos próximos ao publicar o imóvel.
+ * - Só roda se o imóvel tiver latitude/longitude.
+ * - Pula se já existirem pontos vindos do Mapbox (evita re-buscar a cada edição).
+ * - Deduplica contra os pontos já cadastrados, incluindo os adicionados manualmente
+ *   pelo corretor (ex.: se ele já adicionou "Mercado LM", não traz de novo).
+ */
+export async function autoPopulateNearbyPlaces(
+  propertyId: string,
+): Promise<{ added: number }> {
+  const owned = await getOwnedProperty(propertyId)
+  if (!owned || owned.latitude == null || owned.longitude == null) return { added: 0 }
+
+  const supabase = await createClient()
+  const { data: existing, count } = await supabase
+    .from('property_nearby_places')
+    .select('name, category, source', { count: 'exact' })
+    .eq('property_id', propertyId)
+
+  // Já foi populado automaticamente antes: não repete a busca.
+  if ((existing ?? []).some((e) => e.source === 'mapbox')) return { added: 0 }
+
+  const suggestions = await fetchMapboxNearby(owned.latitude, owned.longitude)
+  if (!suggestions.length) return { added: 0 }
+
+  const seen = new Set((existing ?? []).map((e) => `${e.category}:${normalizeName(e.name)}`))
+  let position = count ?? 0
+  const rows = suggestions
+    .filter((s) => s.name?.trim() && isNearbyCategory(s.category))
+    .filter((s) => {
+      const key = `${s.category}:${normalizeName(s.name)}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .slice(0, MAX_PLACES - (count ?? 0))
+    .map((s) => ({
+      property_id: propertyId,
+      organization_id: owned.organizationId,
+      name: s.name.trim().slice(0, 120),
+      category: s.category,
+      distance_m: Math.round(s.distance_m),
+      latitude: s.latitude,
+      longitude: s.longitude,
+      source: 'mapbox' as const,
+      position: position++,
+      created_by: owned.userId,
+    }))
+
+  if (!rows.length) return { added: 0 }
+
+  const { error } = await supabase.from('property_nearby_places').insert(rows)
+  if (error) return { added: 0 }
+
+  revalidateProperty(propertyId)
+  return { added: rows.length }
 }
 
 export async function removeNearbyPlace(
