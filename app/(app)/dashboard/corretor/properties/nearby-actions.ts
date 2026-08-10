@@ -12,6 +12,16 @@ import {
 
 const MAX_PLACES = 40
 
+/** Normaliza nomes para comparação (remove acentos, caixa e espaços repetidos). */
+function normalizeName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 interface OwnedProperty {
   userId: string
   organizationId: string
