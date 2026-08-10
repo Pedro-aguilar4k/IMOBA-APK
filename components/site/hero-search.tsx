@@ -15,6 +15,9 @@ const TYPES = [
   { value: 'house', label: 'Casa' },
   { value: 'commercial', label: 'Comercial' },
   { value: 'land', label: 'Terreno' },
+  { value: 'farm', label: 'Fazenda' },
+  { value: 'ranch', label: 'Sítio' },
+  { value: 'chacara', label: 'Chácara' },
 ]
 
 const AREA_OPTIONS = [

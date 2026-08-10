@@ -9,9 +9,11 @@ import {
   PROPERTY_STATUSES,
   PROPERTY_TYPES,
   centsToReais,
+  isRuralPropertyType,
   type PropertyMediaRecord,
   type PropertyRecord,
 } from '@/lib/properties'
+import { BoundaryDrawer } from '@/components/dashboard/boundary-drawer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -90,6 +92,31 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
         </CardHeader>
         <CardContent>
           <FieldGroup>
+            <div className="grid gap-4 md:grid-cols-[1fr_16rem]">
+              <Field data-invalid={Boolean(errorFor('title'))}>
+                <FieldLabel htmlFor="title">Título do anúncio</FieldLabel>
+                <Input id="title" name="title" defaultValue={property?.title ?? ''} placeholder="Ex.: Fazenda 50 hectares em Formosa - GO" aria-invalid={Boolean(errorFor('title'))} required />
+                <FieldError>{errorFor('title')}</FieldError>
+              </Field>
+              <Field data-invalid={Boolean(errorFor('propertyType'))}>
+                <FieldLabel htmlFor="propertyType">Tipo de imóvel</FieldLabel>
+                <Select name="propertyType" value={propertyType} onValueChange={(value) => setPropertyType(value ?? 'apartment')}>
+                  <SelectTrigger id="propertyType" className="w-full" aria-invalid={Boolean(errorFor('propertyType'))}>
+                    <SelectValue>{PROPERTY_TYPES.find(([key]) => key === propertyType)?.[1] ?? 'Selecione'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {PROPERTY_TYPES.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FieldError>{errorFor('propertyType')}</FieldError>
+              </Field>
+            </div>
+            <Field>
+              <FieldLabel htmlFor="description">Descrição</FieldLabel>
+              <Textarea id="description" name="description" defaultValue={property?.description ?? ''} rows={4} placeholder="Descreva o imóvel, diferenciais e localização." />
+            </Field>
             <Field>
               <FieldLabel htmlFor="locationUrl">Link da localização</FieldLabel>
               <Input id="locationUrl" name="locationUrl" type="url" defaultValue={property?.location_url ?? ''} placeholder="Cole um link do Google Maps ou Mapbox" />
@@ -123,6 +150,18 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
           </FieldGroup>
         </CardContent>
       </Card>
+
+      {isRuralPropertyType(propertyType) ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Demarcação da área</CardTitle>
+            <CardDescription>Desenhe o contorno do terreno no mapa. O tamanho em hectares e alqueires é calculado automaticamente e aparece no anúncio.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BoundaryDrawer initial={property?.boundary ?? null} latitude={property?.latitude} longitude={property?.longitude} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader><CardTitle>Características</CardTitle><CardDescription>Medidas e estrutura física do imóvel.</CardDescription></CardHeader>

@@ -21,6 +21,9 @@ export const PROPERTY_TYPE_LABELS: Record<string, string> = {
   house: 'Casa',
   commercial: 'Comercial',
   land: 'Terreno',
+  farm: 'Fazenda',
+  ranch: 'Sítio',
+  chacara: 'Chácara',
   other: 'Imóvel',
 }
 

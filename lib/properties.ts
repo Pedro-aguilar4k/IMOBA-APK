@@ -15,8 +15,18 @@ export const PROPERTY_TYPES = [
   ['house', 'Casa'],
   ['commercial', 'Comercial'],
   ['land', 'Terreno'],
+  ['farm', 'Fazenda'],
+  ['ranch', 'Sítio'],
+  ['chacara', 'Chácara'],
   ['other', 'Outro'],
 ] as const
+
+/** Tipos rurais que permitem demarcar a área no mapa. */
+export const RURAL_PROPERTY_TYPES = ['land', 'farm', 'ranch', 'chacara'] as const
+
+export function isRuralPropertyType(type: string): boolean {
+  return (RURAL_PROPERTY_TYPES as readonly string[]).includes(type)
+}
 
 export const PROPERTY_FEATURES = [
   'Ar-condicionado',
@@ -42,7 +52,7 @@ const requiredNumber = z.preprocess(
 export const propertySchema = z.object({
   propertyId: z.string().uuid().optional(),
   title: z.string().trim().min(3, 'Informe um título com pelo menos 3 caracteres.').max(120),
-  propertyType: z.enum(['apartment', 'house', 'commercial', 'land', 'other']),
+  propertyType: z.enum(['apartment', 'house', 'commercial', 'land', 'farm', 'ranch', 'chacara', 'other']),
   description: z.string().trim().max(2000).optional(),
   street: z.string().trim().min(2, 'Informe o logradouro.').max(160),
   streetNumber: z.string().trim().min(1, 'Informe o número.').max(20),
@@ -69,6 +79,18 @@ export const propertySchema = z.object({
   fireInsuranceValue: requiredNumber,
   status: z.enum(['draft', 'available', 'occupied', 'maintenance', 'inactive']),
   features: z.array(z.string().max(60)).max(PROPERTY_FEATURES.length),
+  boundary: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => {
+      if (!value) return null
+      try {
+        return JSON.parse(value) as unknown
+      } catch {
+        return null
+      }
+    }),
 })
 
 export type PropertyFormValues = z.infer<typeof propertySchema>
@@ -107,6 +129,7 @@ export interface PropertyRecord {
   extra_fees_value: number
   fire_insurance_value: number
   features: string[]
+  boundary: unknown | null
   status: PropertyStatus
   available: boolean | null
   deactivated_at: string | null

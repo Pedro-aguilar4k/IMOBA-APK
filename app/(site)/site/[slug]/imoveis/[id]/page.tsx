@@ -2,6 +2,7 @@ import { ArrowLeft, Bath, BedDouble, Car, MapPin, Ruler } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { LeadForm } from '@/components/site/lead-form'
+import { PropertyBoundary } from '@/components/site/property-boundary'
 import { PropertyGallery } from '@/components/site/property-gallery'
 import { PropertyNearby } from '@/components/site/property-nearby'
 import { VisitTracker } from '@/components/site/visit-tracker'
@@ -104,6 +105,8 @@ export default async function DetailPage({ params }: DetailPageProps) {
                 </p>
               </div>
             )}
+
+            <PropertyBoundary title={property.title} boundary={property.boundary} />
 
             <PropertyNearby
               title={property.title}

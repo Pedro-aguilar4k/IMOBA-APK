@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { propertySchema, reaisToCents, type PropertyStatus } from '@/lib/properties'
+import { propertySchema, reaisToCents, isRuralPropertyType, type PropertyStatus } from '@/lib/properties'
 import { requireRole } from '@/lib/auth/roles'
 import { autoPopulateNearbyPlaces } from './nearby-actions'
 
@@ -166,6 +166,7 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
     fireInsuranceValue: formData.get('fireInsuranceValue'),
     status: formData.get('status'),
     features: getFeatures(formData),
+    boundary: formData.get('boundary') || undefined,
   })
 
   if (!parsed.success) {
@@ -210,6 +211,7 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
     extra_fees_value: reaisToCents(values.extraFeesValue),
     fire_insurance_value: reaisToCents(values.fireInsuranceValue),
     features: values.features,
+    boundary: isRuralPropertyType(values.propertyType) ? (values.boundary ?? null) : null,
     status: values.status,
     available: values.status === 'available',
     deactivated_at: values.status === 'inactive' ? new Date().toISOString() : null,

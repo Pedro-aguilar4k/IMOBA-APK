@@ -57,6 +57,7 @@ export interface SitePropertyDetail extends SiteProperty {
   total_area_sqm: number | null
   floor_number: number | null
   property_age: number | null
+  boundary: unknown | null
   images: string[]
 }
 
