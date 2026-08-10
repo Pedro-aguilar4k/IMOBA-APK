@@ -1,13 +1,13 @@
 import { Home } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { ListingFilters } from '@/components/site/listing-filters'
-import { PropertyCard } from '@/components/site/property-card'
+import { PropertyResults } from '@/components/site/property-results'
 import { VisitTracker } from '@/components/site/visit-tracker'
 import { getOrganizationBySlug, listPublicProperties } from '@/lib/site/site-data'
 
 interface ListingPageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ q?: string; purpose?: string; type?: string; bedrooms?: string }>
+  searchParams: Promise<{ q?: string; purpose?: string; type?: string; bedrooms?: string; minArea?: string; maxArea?: string; neighborhood?: string }>
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -31,7 +31,10 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
     q: sp.q,
     purpose,
     type: sp.type,
+    neighborhood: sp.neighborhood,
     bedrooms: sp.bedrooms ? Number(sp.bedrooms) : undefined,
+    minArea: sp.minArea ? Number(sp.minArea) : undefined,
+    maxArea: sp.maxArea ? Number(sp.maxArea) : undefined,
   })
 
   return (
@@ -51,9 +54,9 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <ListingFilters
+          <ListingFilters
           slug={slug}
-          initial={{ q: sp.q, purpose: sp.purpose, type: sp.type, bedrooms: sp.bedrooms }}
+          initial={{ q: sp.q, purpose: sp.purpose, type: sp.type, bedrooms: sp.bedrooms, minArea: sp.minArea, maxArea: sp.maxArea, neighborhood: sp.neighborhood }}
         />
 
         <p className="mt-6 text-sm text-muted-foreground">
@@ -71,11 +74,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
             </p>
           </div>
         ) : (
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} baseHref={`/site/${slug}`} />
-            ))}
-          </div>
+          <PropertyResults properties={properties} baseHref={`/site/${slug}`} />
         )}
       </div>
     </div>

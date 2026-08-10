@@ -90,44 +90,16 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
         </CardHeader>
         <CardContent>
           <FieldGroup>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field data-invalid={Boolean(errorFor('title'))}>
-                <FieldLabel htmlFor="title">Título</FieldLabel>
-                <Input id="title" name="title" defaultValue={property?.title} aria-invalid={Boolean(errorFor('title'))} required />
-                <FieldError>{errorFor('title')}</FieldError>
-              </Field>
-              <Field data-invalid={Boolean(errorFor('propertyType'))}>
-                <FieldLabel htmlFor="propertyType">Tipo do imóvel</FieldLabel>
-                <Select name="propertyType" value={propertyType} onValueChange={(value) => setPropertyType(value ?? 'apartment')}>
-                  <SelectTrigger id="propertyType" className="w-full" aria-invalid={Boolean(errorFor('propertyType'))}>
-                    <SelectValue>{PROPERTY_TYPES.find(([value]) => value === propertyType)?.[1]}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {PROPERTY_TYPES.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FieldError>{errorFor('propertyType')}</FieldError>
-              </Field>
-            </div>
             <Field>
-              <FieldLabel htmlFor="description">Descrição</FieldLabel>
-              <Textarea id="description" name="description" rows={5} defaultValue={property?.description ?? ''} placeholder="Destaques, conservação e informações úteis para a locação." />
-              <FieldDescription>Até 2.000 caracteres.</FieldDescription>
+              <FieldLabel htmlFor="locationUrl">Link da localização</FieldLabel>
+              <Input id="locationUrl" name="locationUrl" type="url" defaultValue={property?.location_url ?? ''} placeholder="Cole um link do Google Maps ou Mapbox" />
+              <FieldDescription>O sistema tenta extrair as coordenadas automaticamente. Se não conseguir, informe latitude e longitude abaixo.</FieldDescription>
             </Field>
-          </FieldGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Endereço</CardTitle>
-          <CardDescription>Informe o endereço completo para contratos e vistorias.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <div className="grid gap-4 md:grid-cols-[1fr_10rem]">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field><FieldLabel htmlFor="latitude">Latitude</FieldLabel><Input id="latitude" name="latitude" type="number" step="any" defaultValue={property?.latitude ?? ''} placeholder="-23.5505" /></Field>
+              <Field><FieldLabel htmlFor="longitude">Longitude</FieldLabel><Input id="longitude" name="longitude" type="number" step="any" defaultValue={property?.longitude ?? ''} placeholder="-46.6333" /></Field>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
               <Field data-invalid={Boolean(errorFor('street'))}>
                 <FieldLabel htmlFor="street">Logradouro</FieldLabel>
                 <Input id="street" name="street" defaultValue={property?.street ?? property?.address} aria-invalid={Boolean(errorFor('street'))} required />

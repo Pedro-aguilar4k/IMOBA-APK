@@ -155,6 +155,24 @@
   }
 }
 
+.property-price-marker {
+  border: 0;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 2px 10px rgb(15 23 42 / 18%);
+  cursor: pointer;
+  font: 600 0.75rem/1 var(--font-sans);
+  padding: 0.55rem 0.7rem;
+  white-space: nowrap;
+}
+.property-price-marker:hover,
+.property-price-marker.is-selected {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transform: scale(1.06);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

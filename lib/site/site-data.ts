@@ -43,6 +43,8 @@ export interface SiteProperty {
   iptu_value: number
   features: string[]
   cover_url: string | null
+  latitude: number | null
+  longitude: number | null
   created_at: string
 }
 
@@ -62,7 +64,10 @@ export interface PropertyFilters {
   purpose?: ListingPurpose | 'todos'
   type?: string
   city?: string
+  neighborhood?: string
   bedrooms?: number
+  minArea?: number
+  maxArea?: number
   q?: string
   maxPrice?: number
 }
@@ -130,7 +135,7 @@ export async function listPublicProperties(
   let query = admin
     .from('properties')
     .select(
-      'id, title, description, neighborhood, city, state, property_type, listing_purpose, bedrooms, suites, bathrooms, parking_spaces, usable_area_sqm, rent_value, sale_value, condominium_value, iptu_value, features, created_at',
+      'id, title, description, neighborhood, city, state, property_type, listing_purpose, bedrooms, suites, bathrooms, parking_spaces, usable_area_sqm, rent_value, sale_value, condominium_value, iptu_value, features, latitude, longitude, created_at',
     )
     .eq('organization_id', organizationId)
     .eq('available', true)
@@ -141,8 +146,11 @@ export async function listPublicProperties(
   }
   if (filters.type) query = query.eq('property_type', filters.type)
   if (filters.city) query = query.ilike('city', `%${filters.city}%`)
+  if (filters.neighborhood) query = query.ilike('neighborhood', `%${filters.neighborhood}%`)
   if (filters.bedrooms) query = query.gte('bedrooms', filters.bedrooms)
-  if (filters.q) query = query.or(`title.ilike.%${filters.q}%,neighborhood.ilike.%${filters.q}%`)
+  if (filters.minArea) query = query.gte('usable_area_sqm', filters.minArea)
+  if (filters.maxArea) query = query.lte('usable_area_sqm', filters.maxArea)
+  if (filters.q) query = query.or(`title.ilike.%${filters.q}%,neighborhood.ilike.%${filters.q}%,city.ilike.%${filters.q}%`)
 
   const { data: rows } = await query
   const properties = (rows ?? []) as Omit<SiteProperty, 'cover_url'>[]

@@ -43,6 +43,9 @@ interface ListingFiltersProps {
     purpose?: string
     type?: string
     bedrooms?: string
+    minArea?: string
+    maxArea?: string
+    neighborhood?: string
   }
 }
 
@@ -52,6 +55,9 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
   const [purpose, setPurpose] = useState(initial.purpose ?? 'all')
   const [type, setType] = useState(initial.type ?? 'all')
   const [bedrooms, setBedrooms] = useState(initial.bedrooms ?? 'all')
+  const [minArea, setMinArea] = useState(initial.minArea ?? '')
+  const [maxArea, setMaxArea] = useState(initial.maxArea ?? '')
+  const [neighborhood, setNeighborhood] = useState(initial.neighborhood ?? '')
 
   function apply() {
     const params = new URLSearchParams()
@@ -59,6 +65,9 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
     if (purpose !== 'all') params.set('purpose', purpose)
     if (type !== 'all') params.set('type', type)
     if (bedrooms !== 'all') params.set('bedrooms', bedrooms)
+    if (minArea.trim()) params.set('minArea', minArea.trim())
+    if (maxArea.trim()) params.set('maxArea', maxArea.trim())
+    if (neighborhood.trim()) params.set('neighborhood', neighborhood.trim())
     const query = params.toString()
     router.push(`/site/${slug}/imoveis${query ? `?${query}` : ''}`)
   }
@@ -69,7 +78,7 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
         <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
         Filtrar imóveis
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 lg:items-end">
         <div className="grid gap-1.5 lg:col-span-2">
           <Label htmlFor="q">Busca</Label>
           <Input
@@ -81,6 +90,18 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             }}
             placeholder="Bairro, cidade ou título"
           />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="neighborhood-filter">Bairro</Label>
+          <Input id="neighborhood-filter" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Ex.: Centro" />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="min-area">Área mínima (m²)</Label>
+          <Input id="min-area" type="number" min="0" value={minArea} onChange={(e) => setMinArea(e.target.value)} placeholder="60" />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="max-area">Área máxima (m²)</Label>
+          <Input id="max-area" type="number" min="0" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} placeholder="180" />
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="purpose-filter">Finalidade</Label>
