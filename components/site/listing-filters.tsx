@@ -36,6 +36,10 @@ const BEDROOM_OPTIONS = [
 
 interface ListingFiltersProps {
   slug: string
+  suggestions?: {
+    cities: string[]
+    neighborhoods: string[]
+  }
   initial: {
     q?: string
     purpose?: string
@@ -52,8 +56,10 @@ type SegmentId = 'onde' | 'finalidade' | 'tipo' | 'quartos' | 'area'
 const popupClass =
   'z-50 w-[min(20rem,calc(100vw-2rem))] origin-[var(--transform-origin)] rounded-3xl border border-border bg-popover p-5 text-popover-foreground shadow-xl outline-none transition-[transform,opacity] data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0'
 
-export function ListingFilters({ slug, initial }: ListingFiltersProps) {
+export function ListingFilters({ slug, suggestions, initial }: ListingFiltersProps) {
   const router = useRouter()
+  const cities = suggestions?.cities ?? []
+  const neighborhoods = suggestions?.neighborhoods ?? []
   const [q, setQ] = useState(initial.q ?? '')
   const [neighborhood, setNeighborhood] = useState(initial.neighborhood ?? '')
   const [purpose, setPurpose] = useState(initial.purpose ?? 'all')
@@ -70,10 +76,12 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
     }
   }
 
-  function apply(closeAfter = true) {
+  function apply(overrides: Partial<Record<'q' | 'neighborhood', string>> = {}, closeAfter = true) {
+    const nextQ = (overrides.q ?? q).trim()
+    const nextHood = (overrides.neighborhood ?? neighborhood).trim()
     const params = new URLSearchParams()
-    if (q.trim()) params.set('q', q.trim())
-    if (neighborhood.trim()) params.set('neighborhood', neighborhood.trim())
+    if (nextQ) params.set('q', nextQ)
+    if (nextHood) params.set('neighborhood', nextHood)
     if (purpose !== 'all') params.set('purpose', purpose)
     if (type !== 'all') params.set('type', type)
     if (bedrooms !== 'all') params.set('bedrooms', bedrooms)
@@ -115,6 +123,27 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
                 placeholder="Cidade ou título"
               />
             </div>
+
+            {cities.length > 0 ? (
+              <div className="grid gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Cidades disponíveis</span>
+                <div className="flex flex-wrap gap-2">
+                  {cities.map((city) => (
+                    <Chip
+                      key={city}
+                      active={q.trim().toLowerCase() === city.toLowerCase()}
+                      onClick={() => {
+                        setQ(city)
+                        apply({ q: city })
+                      }}
+                    >
+                      {city}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className="grid gap-1.5">
               <Label htmlFor="neighborhood-filter">Bairro</Label>
               <Input
@@ -127,6 +156,23 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
                 placeholder="Ex.: Centro"
               />
             </div>
+
+            {neighborhoods.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {neighborhoods.map((hood) => (
+                  <Chip
+                    key={hood}
+                    active={neighborhood.trim().toLowerCase() === hood.toLowerCase()}
+                    onClick={() => {
+                      setNeighborhood(hood)
+                      apply({ neighborhood: hood })
+                    }}
+                  >
+                    {hood}
+                  </Chip>
+                ))}
+              </div>
+            ) : null}
           </div>
         }
       />
@@ -292,6 +338,31 @@ function Segment({ label, value, open, onOpenChange, popup }: SegmentProps) {
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
+  )
+}
+
+function Chip({
+  children,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode
+  active?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'rounded-full border px-3 py-1.5 text-sm transition-colors',
+        active
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-border bg-card text-foreground hover:border-foreground',
+      )}
+    >
+      {children}
+    </button>
   )
 }
 

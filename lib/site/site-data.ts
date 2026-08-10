@@ -127,6 +127,40 @@ function coverFromMedia(media: { property_id: string; storage_path: string; is_c
   return byProperty
 }
 
+export interface LocationSuggestions {
+  cities: string[]
+  neighborhoods: string[]
+}
+
+/** Cidades e bairros distintos dos imóveis disponíveis, para sugerir no filtro "Onde". */
+export async function listLocationSuggestions(
+  organizationId: string,
+): Promise<LocationSuggestions> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('properties')
+    .select('city, neighborhood')
+    .eq('organization_id', organizationId)
+    .eq('available', true)
+
+  const rows = (data ?? []) as { city: string | null; neighborhood: string | null }[]
+  const cityCount = new Map<string, number>()
+  const hoodCount = new Map<string, number>()
+  for (const r of rows) {
+    const city = r.city?.trim()
+    const hood = r.neighborhood?.trim()
+    if (city) cityCount.set(city, (cityCount.get(city) ?? 0) + 1)
+    if (hood) hoodCount.set(hood, (hoodCount.get(hood) ?? 0) + 1)
+  }
+  const byFreq = (m: Map<string, number>) =>
+    [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([name]) => name)
+
+  return {
+    cities: byFreq(cityCount).slice(0, 6),
+    neighborhoods: byFreq(hoodCount).slice(0, 6),
+  }
+}
+
 /** Lista imóveis públicos (apenas disponíveis) de uma organização, com filtros e escopo por tenant. */
 export async function listPublicProperties(
   organizationId: string,

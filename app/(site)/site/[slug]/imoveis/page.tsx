@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ListingFilters } from '@/components/site/listing-filters'
 import { PropertyResults } from '@/components/site/property-results'
 import { VisitTracker } from '@/components/site/visit-tracker'
-import { getOrganizationBySlug, listPublicProperties } from '@/lib/site/site-data'
+import { getOrganizationBySlug, listLocationSuggestions, listPublicProperties } from '@/lib/site/site-data'
 
 interface ListingPageProps {
   params: Promise<{ slug: string }>
@@ -27,6 +27,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
     sp.purpose === 'venda' || sp.purpose === 'aluguel' || sp.purpose === 'ambos'
       ? sp.purpose
       : 'todos'
+  const suggestions = await listLocationSuggestions(org.id)
   const properties = await listPublicProperties(org.id, {
     q: sp.q,
     purpose,
@@ -44,6 +45,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <ListingFilters
           slug={slug}
+          suggestions={suggestions}
           initial={{ q: sp.q, purpose: sp.purpose, type: sp.type, bedrooms: sp.bedrooms, minArea: sp.minArea, maxArea: sp.maxArea, neighborhood: sp.neighborhood }}
         />
 
