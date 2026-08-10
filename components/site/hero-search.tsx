@@ -27,12 +27,18 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
   const router = useRouter()
   const [purpose, setPurpose] = useState<'venda' | 'aluguel'>('venda')
   const [type, setType] = useState('all')
+  const [bedrooms, setBedrooms] = useState('all')
+  const [minArea, setMinArea] = useState('')
+  const [maxArea, setMaxArea] = useState('')
   const [q, setQ] = useState('')
 
   function search() {
     const params = new URLSearchParams()
     params.set('purpose', purpose)
     if (type !== 'all') params.set('type', type)
+    if (bedrooms !== 'all') params.set('bedrooms', bedrooms)
+    if (minArea.trim()) params.set('minArea', minArea.trim())
+    if (maxArea.trim()) params.set('maxArea', maxArea.trim())
     if (q.trim()) params.set('q', q.trim())
     router.push(`${baseHref}/imoveis?${params.toString()}`)
   }
@@ -88,6 +94,29 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="w-full md:w-40">
+          <Label htmlFor="hero-bedrooms" className="mb-1.5 text-xs text-muted-foreground">Quartos</Label>
+          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
+            <SelectTrigger id="hero-bedrooms" className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer</SelectItem>
+              <SelectItem value="1">1+ quarto</SelectItem>
+              <SelectItem value="2">2+ quartos</SelectItem>
+              <SelectItem value="3">3+ quartos</SelectItem>
+              <SelectItem value="4">4+ quartos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-2 gap-2 md:w-48">
+          <div>
+            <Label htmlFor="hero-min-area" className="mb-1.5 text-xs text-muted-foreground">Mín. m²</Label>
+            <Input id="hero-min-area" type="number" min="0" value={minArea} onChange={(e) => setMinArea(e.target.value)} placeholder="60" />
+          </div>
+          <div>
+            <Label htmlFor="hero-max-area" className="mb-1.5 text-xs text-muted-foreground">Máx. m²</Label>
+            <Input id="hero-max-area" type="number" min="0" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} placeholder="180" />
+          </div>
         </div>
         <Button onClick={search} className="h-10 gap-2 md:w-auto">
           <Search className="size-4" aria-hidden="true" />

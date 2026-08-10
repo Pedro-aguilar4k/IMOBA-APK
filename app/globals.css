@@ -166,11 +166,23 @@
   padding: 0.55rem 0.7rem;
   white-space: nowrap;
 }
-.property-price-marker:hover,
-.property-price-marker.is-selected {
+.property-price-marker.is-sale {
   background: var(--primary);
   color: var(--primary-foreground);
-  transform: scale(1.06);
+}
+.property-price-marker.is-rent {
+  background: var(--chart-2);
+  color: var(--primary-foreground);
+}
+.property-price-marker.is-house {
+  background: var(--chart-3);
+  color: var(--primary-foreground);
+}
+.property-price-marker:hover,
+.property-price-marker.is-selected {
+  filter: saturate(1.2) brightness(0.94);
+  box-shadow: 0 4px 16px rgb(15 23 42 / 28%);
+  transform: scale(1.08);
 }
 
 @layer base {
