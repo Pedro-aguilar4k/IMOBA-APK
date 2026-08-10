@@ -84,7 +84,7 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="purpose-filter">Finalidade</Label>
-          <Select value={purpose} onValueChange={setPurpose}>
+          <Select value={purpose} onValueChange={(value) => setPurpose(value ?? 'all')}>
             <SelectTrigger id="purpose-filter">
               <SelectValue />
             </SelectTrigger>
@@ -99,7 +99,7 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="type-filter">Tipo</Label>
-          <Select value={type} onValueChange={setType}>
+          <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
             <SelectTrigger id="type-filter">
               <SelectValue />
             </SelectTrigger>
@@ -114,7 +114,7 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="bedrooms-filter">Quartos</Label>
-          <Select value={bedrooms} onValueChange={setBedrooms}>
+          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
             <SelectTrigger id="bedrooms-filter">
               <SelectValue />
             </SelectTrigger>

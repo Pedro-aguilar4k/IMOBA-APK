@@ -58,7 +58,7 @@ export function ScheduleForm({ leads, brokers }: ScheduleFormProps) {
       {leads.length > 0 ? (
         <div className="grid gap-2">
           <Label htmlFor="lead-select">Lead (opcional)</Label>
-          <Select name="leadId" value={leadId} onValueChange={setLeadId}>
+          <Select name="leadId" value={leadId} onValueChange={(value) => setLeadId(value ?? '')}>
             <SelectTrigger id="lead-select" className="w-full">
               <SelectValue placeholder="Selecionar um lead" />
             </SelectTrigger>
@@ -87,7 +87,7 @@ export function ScheduleForm({ leads, brokers }: ScheduleFormProps) {
 
       <div className="grid gap-2">
         <Label htmlFor="corretor-select">Corretor responsável</Label>
-        <Select name="corretorId" value={corretorId} onValueChange={setCorretorId}>
+        <Select name="corretorId" value={corretorId} onValueChange={(value) => setCorretorId(value ?? '')}>
           <SelectTrigger id="corretor-select" className="w-full">
             <SelectValue placeholder="Selecionar corretor" />
           </SelectTrigger>

@@ -293,6 +293,7 @@ export async function finalizeSubscription(
       : (session.customer?.id ?? null)
 
   const activationToken = crypto.randomUUID()
+  const subscriptionPeriodEnd = (stripeSub as unknown as { current_period_end?: number }).current_period_end
 
   await admin
     .from('subscriptions')
@@ -301,8 +302,8 @@ export async function finalizeSubscription(
       status: stripeSub?.status ?? 'active',
       stripe_customer_id: customerId,
       stripe_subscription_id: stripeSub?.id ?? null,
-      current_period_end: stripeSub?.current_period_end
-        ? new Date(stripeSub.current_period_end * 1000).toISOString()
+      current_period_end: subscriptionPeriodEnd
+        ? new Date(subscriptionPeriodEnd * 1000).toISOString()
         : null,
       activation_token: activationToken,
       activation_expires_at: new Date(

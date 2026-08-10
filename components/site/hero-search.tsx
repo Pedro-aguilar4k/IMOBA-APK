@@ -76,7 +76,7 @@ export function HeroSearch({ baseHref }: { baseHref: string }) {
           <Label htmlFor="hero-type" className="mb-1.5 text-xs text-muted-foreground">
             Tipo de imóvel
           </Label>
-          <Select value={type} onValueChange={setType}>
+          <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
             <SelectTrigger id="hero-type" className="w-full">
               <SelectValue />
             </SelectTrigger>

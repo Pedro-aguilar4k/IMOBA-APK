@@ -44,7 +44,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
 
   return (
     <div className="bg-background">
-      <VisitTracker slug={slug} path={`/site/${slug}/imoveis/${id}`} />
+      <VisitTracker organizationId={org.id} path={`/site/${slug}/imoveis/${id}`} />
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <Link

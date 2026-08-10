@@ -36,7 +36,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
 
   return (
     <div className="bg-background">
-      <VisitTracker slug={slug} path={`/site/${slug}/imoveis`} />
+      <VisitTracker organizationId={org.id} path={`/site/${slug}/imoveis`} />
 
       <div className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">

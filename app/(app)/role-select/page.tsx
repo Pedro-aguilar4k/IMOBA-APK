@@ -5,6 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getCurrentAccess, getDefaultRoute, type AppRole } from '@/lib/auth/roles'
 
 const roleContent: Record<AppRole, { title: string; description: string; href: string }> = {
+  superadmin: {
+    title: 'Super Admin',
+    description: 'Gerenciar clientes, assinaturas e sites da plataforma',
+    href: '/plataforma',
+  },
   admin: {
     title: 'Administrador',
     description: 'Gerenciar corretores e acessos da plataforma',

@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { Check, Globe, Loader2 } from 'lucide-react'
 
-import { saveCustomDomain, type DomainState } from '@/app/(app)/admin/plano/actions'
+import { saveDomain as saveCustomDomain, type DomainState } from '@/app/(app)/admin/conta/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -69,9 +69,7 @@ export function DomainForm({ currentDomain }: DomainFormProps) {
       {state.ok ? (
         <p className="flex items-center gap-2 text-sm text-primary">
           <Check className="size-4" aria-hidden="true" />
-          {state.domain
-            ? 'Domínio salvo! Configure o DNS para concluir a verificação.'
-            : 'Domínio removido.'}
+          Domínio salvo! Configure o DNS para concluir a verificação.
         </p>
       ) : null}
 
