@@ -30,7 +30,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
     mapboxgl.accessToken = token
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/streets-v12',
       center: [-46.6333, -23.5505],
       zoom: 11,
       attributionControl: true,
@@ -59,7 +59,8 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
     located.forEach((property) => {
       const element = document.createElement('button')
       element.type = 'button'
-      element.className = `property-price-marker${property.id === selectedId ? ' is-selected' : ''}`
+      const markerTone = property.listing_purpose === 'aluguel' ? ' is-rent' : property.property_type === 'house' ? ' is-house' : ' is-sale'
+      element.className = `property-price-marker${markerTone}${property.id === selectedId ? ' is-selected' : ''}`
       element.textContent = priceLabel(property)
       element.setAttribute('aria-label', `${priceLabel(property)} — ${property.title}`)
       element.onclick = () => onSelect?.(property)
