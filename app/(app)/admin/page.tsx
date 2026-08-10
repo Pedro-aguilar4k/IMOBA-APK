@@ -7,20 +7,28 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function AdminPage() {
   const access = await requireRole('admin')
+  const organizationId = access.assignment.organization_id
   const admin = createAdminClient()
-  const [{ data: organizations }, { data: brokerRoles }, { data: users }] = await Promise.all([
-    admin
-      .from('organizations')
-      .select('id, name, cnpj, status, created_at, access_invites(id, name, role, status)')
-      .order('created_at', { ascending: false }),
-    admin.from('user_roles').select('user_id, organization_id').eq('role', 'corretor'),
+
+  const [{ data: organization }, { data: brokerRoles }, users] = await Promise.all([
+    organizationId
+      ? admin.from('organizations').select('name').eq('id', organizationId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    organizationId
+      ? admin
+          .from('user_roles')
+          .select('user_id, created_at')
+          .eq('role', 'corretor')
+          .eq('organization_id', organizationId)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
     admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ])
 
-  const userById = new Map((users?.users ?? []).map((user) => [user.id, user]))
-  const brokerByOrganization = new Map(
-    (brokerRoles ?? []).map((assignment) => [assignment.organization_id, userById.get(assignment.user_id)]),
-  )
+  const userById = new Map((users?.data?.users ?? []).map((user) => [user.id, user]))
+  const brokers = (brokerRoles ?? [])
+    .map((assignment) => userById.get(assignment.user_id))
+    .filter((user): user is NonNullable<typeof user> => Boolean(user))
 
   return (
     <div className="min-h-svh bg-background">
@@ -28,9 +36,10 @@ export default async function AdminPage() {
       <main className="mx-auto grid max-w-7xl gap-6 p-4 md:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] md:p-8">
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>Nova conta de corretor</CardTitle>
+            <CardTitle>Novo corretor</CardTitle>
             <CardDescription>
-              Cadastre a imobiliária e defina as credenciais temporárias do responsável.
+              Cadastre um corretor da {organization?.name ?? 'sua imobiliária'} e defina as credenciais
+              temporárias de acesso.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -40,44 +49,33 @@ export default async function AdminPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Imobiliárias cadastradas</CardTitle>
-            <CardDescription>Acompanhe as contas de corretores e cadastros legados.</CardDescription>
+            <CardTitle>Corretores cadastrados</CardTitle>
+            <CardDescription>
+              Equipe de corretores com acesso ao painel da {organization?.name ?? 'sua imobiliária'}.
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            {organizations?.length ? organizations.map((organization) => {
-              const broker = brokerByOrganization.get(organization.id)
-              const invites = Array.isArray(organization.access_invites)
-                ? organization.access_invites
-                : organization.access_invites
-                  ? [organization.access_invites]
-                  : []
-              const legacyInvite = invites.find((invite) => invite.role === 'corretor' && invite.status === 'pending')
-
-              return (
-                <div key={organization.id} className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+            {brokers.length ? (
+              brokers.map((broker) => (
+                <div
+                  key={broker.id}
+                  className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div className="min-w-0">
-                    <p className="font-semibold text-foreground">{organization.name}</p>
-                    <p className="text-sm leading-6 text-muted-foreground">CNPJ final {organization.cnpj.slice(-4)}</p>
-                    {broker ? (
-                      <>
-                        <p className="text-sm leading-6 text-muted-foreground">
-                          Responsável: {String(broker.user_metadata?.name ?? 'Corretor')}
-                        </p>
-                        <p className="truncate text-sm leading-6 text-muted-foreground">{broker.email}</p>
-                      </>
-                    ) : legacyInvite ? (
-                      <p className="text-sm leading-6 text-muted-foreground">
-                        Convite legado de {legacyInvite.name}. Recrie a conta com e-mail e senha temporária.
-                      </p>
-                    ) : null}
+                    <p className="font-semibold text-foreground">
+                      {String(broker.user_metadata?.name ?? 'Corretor')}
+                    </p>
+                    <p className="truncate text-sm leading-6 text-muted-foreground">{broker.email}</p>
                   </div>
-                  <Badge variant={broker ? 'default' : 'secondary'}>
-                    {broker ? 'Conta ativa' : legacyInvite ? 'Cadastro legado' : 'Sem corretor'}
+                  <Badge variant={broker.app_metadata?.must_change_password ? 'secondary' : 'default'}>
+                    {broker.app_metadata?.must_change_password ? 'Acesso pendente' : 'Conta ativa'}
                   </Badge>
                 </div>
-              )
-            }) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">Nenhuma imobiliária cadastrada.</p>
+              ))
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhum corretor cadastrado ainda.
+              </p>
             )}
           </CardContent>
         </Card>

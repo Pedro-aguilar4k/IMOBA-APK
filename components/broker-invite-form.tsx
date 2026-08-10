@@ -14,18 +14,8 @@ export function BrokerAccountForm() {
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className="grid gap-2">
-        <Label htmlFor="organizationName">Nome da imobiliária</Label>
-        <Input id="organizationName" name="organizationName" autoComplete="organization" required />
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="brokerName">Nome do corretor responsável</Label>
+        <Label htmlFor="brokerName">Nome do corretor</Label>
         <Input id="brokerName" name="brokerName" autoComplete="name" required />
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="cnpj">CNPJ</Label>
-        <Input id="cnpj" name="cnpj" inputMode="numeric" placeholder="00.000.000/0000-00" required />
       </div>
 
       <div className="grid gap-2">

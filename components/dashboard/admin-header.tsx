@@ -25,7 +25,7 @@ export function AdminHeader({ email }: AdminHeaderProps) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Administração</h1>
-          <p className="text-sm text-muted-foreground">Gerencie imobiliárias e acessos</p>
+          <p className="text-sm text-muted-foreground">Gerencie sua equipe de corretores</p>
         </div>
 
         <DropdownMenu>

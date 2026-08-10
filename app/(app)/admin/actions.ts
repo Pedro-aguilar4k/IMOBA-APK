@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { requireRole } from '@/lib/auth/roles'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { digitsOnly } from '@/lib/security/identifiers'
 
 export type BrokerAccountState = {
   error?: string
@@ -13,9 +12,7 @@ export type BrokerAccountState = {
 
 const brokerSchema = z
   .object({
-    organizationName: z.string().trim().min(2, 'Informe o nome da imobiliária.'),
-    brokerName: z.string().trim().min(2, 'Informe o nome do responsável.'),
-    cnpj: z.string().min(1, 'Informe o CNPJ.'),
+    brokerName: z.string().trim().min(2, 'Informe o nome do corretor.'),
     email: z.string().trim().toLowerCase().email('Informe um e-mail válido.'),
     temporaryPassword: z
       .string()
@@ -35,10 +32,14 @@ export async function createBrokerAccount(
   formData: FormData,
 ): Promise<BrokerAccountState> {
   const access = await requireRole('admin')
+
+  const organizationId = access.assignment.organization_id
+  if (!organizationId) {
+    return { error: 'Sua conta não está vinculada a uma imobiliária. Contate o suporte.' }
+  }
+
   const parsed = brokerSchema.safeParse({
-    organizationName: formData.get('organizationName'),
     brokerName: formData.get('brokerName'),
-    cnpj: formData.get('cnpj'),
     email: formData.get('email'),
     temporaryPassword: formData.get('temporaryPassword'),
     confirmPassword: formData.get('confirmPassword'),
@@ -48,19 +49,7 @@ export async function createBrokerAccount(
     return { error: parsed.error.issues[0]?.message ?? 'Revise os dados informados.' }
   }
 
-  const cnpj = digitsOnly(parsed.data.cnpj)
-  if (cnpj.length !== 14) return { error: 'Informe um CNPJ com 14 dígitos.' }
-
   const admin = createAdminClient()
-  const { data: existingOrganization } = await admin
-    .from('organizations')
-    .select('id')
-    .eq('cnpj', cnpj)
-    .maybeSingle()
-
-  if (existingOrganization) {
-    return { error: 'Já existe uma imobiliária cadastrada com este CNPJ.' }
-  }
 
   const { data: existingUsers, error: listError } = await admin.auth.admin.listUsers({
     page: 1,
@@ -84,28 +73,6 @@ export async function createBrokerAccount(
   }
 
   const userId = created.user.id
-  let organizationId: string | null = null
-
-  const rollback = async () => {
-    await admin.auth.admin.deleteUser(userId)
-    if (organizationId) await admin.from('organizations').delete().eq('id', organizationId)
-  }
-
-  const { data: organization, error: organizationError } = await admin
-    .from('organizations')
-    .insert({
-      name: parsed.data.organizationName,
-      cnpj,
-      created_by: access.userId,
-    })
-    .select('id')
-    .single()
-
-  if (organizationError || !organization) {
-    await rollback()
-    return { error: 'Não foi possível cadastrar a imobiliária.' }
-  }
-  organizationId = organization.id
 
   const { error: profileError } = await admin
     .from('profiles')
@@ -124,12 +91,13 @@ export async function createBrokerAccount(
   })
 
   if (profileError || roleError) {
-    await rollback()
+    // Desfaz a criação do usuário se não foi possível vincular o papel.
+    await admin.auth.admin.deleteUser(userId)
     return { error: 'Não foi possível concluir a criação da conta.' }
   }
 
   revalidatePath('/admin')
   return {
-    success: `Conta criada para ${parsed.data.email}. Entregue o e-mail e a senha temporária ao corretor.`,
+    success: `Corretor cadastrado com sucesso. Entregue o e-mail e a senha temporária a ${parsed.data.brokerName}.`,
   }
 }
