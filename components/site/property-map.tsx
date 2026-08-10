@@ -32,10 +32,10 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       container: containerRef.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [-46.6333, -23.5505],
-      zoom: 11,
+      zoom: 12.5,
       // Trava o afastamento no nível de cidade e limita a aproximação.
-      minZoom: 10.5,
-      maxZoom: 17,
+      minZoom: 11.5,
+      maxZoom: 18,
       attributionControl: true,
     })
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
@@ -76,8 +76,8 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       bounds.extend([property.longitude!, property.latitude!])
     })
 
-    if (located.length === 1) map.flyTo({ center: [located[0].longitude!, located[0].latitude!], zoom: 14 })
-    else map.fitBounds(bounds, { padding: 72, minZoom: 11.5, maxZoom: 15, duration: 600 })
+    if (located.length === 1) map.flyTo({ center: [located[0].longitude!, located[0].latitude!], zoom: 15 })
+    else map.fitBounds(bounds, { padding: 72, minZoom: 12.5, maxZoom: 16, duration: 600 })
   }, [properties, selectedId, onSelect])
 
   if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
