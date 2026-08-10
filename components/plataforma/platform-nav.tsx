@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CreditCard, House } from 'lucide-react'
+import { LayoutDashboard, CreditCard, House, Palette } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/plataforma', label: 'Visão geral', icon: LayoutDashboard, exact: true },
   { href: '/plataforma/assinaturas', label: 'Assinaturas', icon: CreditCard, exact: false },
+  { href: '/plataforma/sites', label: 'Sites dos clientes', icon: Palette, exact: false },
 ]
 
 export function PlatformNav({ variant = 'sidebar' }: { variant?: 'sidebar' | 'bar' }) {

@@ -7,7 +7,7 @@ import { LeadForm } from '@/components/site/lead-form'
 import { PropertyCard } from '@/components/site/property-card'
 import { VisitTracker } from '@/components/site/visit-tracker'
 import { buttonVariants } from '@/components/ui/button'
-import { getOrganizationBySlug, listPublicProperties } from '@/lib/site/site-data'
+import { getOrganizationBySlug, getPublishedSiteCustomization, listPublicProperties } from '@/lib/site/site-data'
 import { whatsappLink } from '@/lib/site/format'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +15,8 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const org = await getOrganizationBySlug(slug)
   if (!org) notFound()
+  const customization = await getPublishedSiteCustomization(org)
+  const content = customization
 
   const base = `/site/${slug}`
   const all = await listPublicProperties(org.id)
@@ -32,7 +34,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <Image
-            src={org.hero_image_url || '/site-demo/hero.png'}
+            src={content.hero.imageUrl || '/site-demo/hero.png'}
             alt=""
             fill
             priority
@@ -46,14 +48,13 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full bg-background/15 px-3 py-1 text-sm font-medium text-background backdrop-blur">
               <ShieldCheck className="size-4" aria-hidden="true" />
-              {org.creci ?? 'Imobiliária credenciada'}
+              {content.hero.eyebrow} · {content.brand.creci || 'Imobiliária credenciada'}
             </span>
             <h1 className="mt-4 text-balance font-display text-4xl font-bold leading-tight text-background sm:text-5xl md:text-6xl">
-              {org.tagline ?? 'O imóvel certo para viver ou investir'}
+              {content.hero.title}
             </h1>
             <p className="mt-4 max-w-xl text-pretty text-lg leading-relaxed text-background/85">
-              {org.about?.split('.')[0] ??
-                `Conheça os imóveis selecionados pela ${org.name} e encontre o seu próximo endereço.`}
+              {content.hero.description}
             </p>
           </div>
           <div className="w-full max-w-3xl">
@@ -83,11 +84,11 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* VITRINE DE IMÓVEIS */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      {content.sections.featured.enabled && <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">Imóveis em destaque</h2>
-            <p className="mt-1 text-muted-foreground">Seleção especial da nossa equipe para você.</p>
+            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.featured.title}</h2>
+            <p className="mt-1 text-muted-foreground">{content.sections.featured.description}</p>
           </div>
           <Link
             href={`${base}/imoveis`}
@@ -109,18 +110,18 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             Em breve, novos imóveis por aqui.
           </p>
         )}
-      </section>
+      </section>}
 
       {/* BLOCOS COMPRAR / ALUGAR */}
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      {content.sections.buyRent.enabled && <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2">
           {[
             {
               href: `${base}/imoveis?purpose=venda`,
               img: '/site-demo/cobertura-vista.png',
               kicker: 'Comprar',
-              title: 'Realize o sonho do imóvel próprio',
-              text: 'Apartamentos, casas e coberturas para chamar de seu.',
+              title: content.sections.buyRent.title,
+              text: content.sections.buyRent.description,
             },
             {
               href: `${base}/imoveis?purpose=aluguel`,
@@ -155,10 +156,10 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             </Link>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* SOBRE */}
-      <section id="sobre" className="border-y border-border/60 bg-secondary/30 scroll-mt-20">
+      {content.sections.about.enabled && <section id="sobre" className="border-y border-border/60 bg-secondary/30 scroll-mt-20">
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 lg:px-8">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
             <Image
@@ -170,10 +171,9 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             />
           </div>
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">Sobre a {org.name}</h2>
+            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.about.title}</h2>
             <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-              {org.about ??
-                `A ${org.name} conecta pessoas aos imóveis certos com atendimento próximo e transparência em cada etapa.`}
+              {content.sections.about.body}
             </p>
             <ul className="mt-6 flex flex-col gap-3">
               {[
@@ -189,16 +189,15 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             </ul>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* CONTATO */}
-      <section id="contato" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+      {content.sections.contact.enabled && <section id="contato" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2">
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">Fale com a gente</h2>
+            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.contact.title}</h2>
             <p className="mt-2 text-pretty leading-relaxed text-muted-foreground">
-              Deixe seus dados e um corretor entrará em contato para ajudar você a encontrar o imóvel
-              ideal. Sem compromisso.
+              {content.sections.contact.description}
             </p>
             <div className="mt-6 flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-5">
               {org.phone && (
@@ -227,7 +226,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             <LeadForm organizationId={org.id} />
           </div>
         </div>
-      </section>
+      </section>}
     </>
   )
 }

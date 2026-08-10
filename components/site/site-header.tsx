@@ -6,10 +6,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/button'
 import type { SiteOrganization } from '@/lib/site/site-data'
+import type { SiteCustomization } from '@/lib/site/customization'
 import { whatsappLink } from '@/lib/site/format'
 import { cn } from '@/lib/utils'
 
-export function SiteHeader({ org }: { org: SiteOrganization }) {
+export function SiteHeader({ org, customization }: { org: SiteOrganization; customization?: SiteCustomization }) {
+  const brand = customization?.brand
   const [open, setOpen] = useState(false)
   const base = `/site/${org.slug}`
   const nav = [
@@ -26,15 +28,15 @@ export function SiteHeader({ org }: { org: SiteOrganization }) {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href={base} className="flex items-center gap-2.5">
-          {org.logo_url ? (
-            <Image src={org.logo_url || "/placeholder.svg"} alt={org.name} width={36} height={36} className="rounded-md" />
+          {brand?.logoUrl || org.logo_url ? (
+            <Image src={brand?.logoUrl || org.logo_url || "/placeholder.svg"} alt={brand?.displayName || org.name} width={36} height={36} className="rounded-md" />
           ) : (
             <span className="flex size-9 items-center justify-center rounded-md bg-primary font-display text-lg font-bold text-primary-foreground">
-              {org.name.charAt(0)}
+              {(brand?.displayName || org.name).charAt(0)}
             </span>
           )}
           <span className="font-display text-lg font-semibold leading-tight text-foreground">
-            {org.name}
+            {brand?.displayName || org.name}
           </span>
         </Link>
 

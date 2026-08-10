@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getSiteCustomization, type SiteCustomization } from './customization'
 
 export type ListingPurpose = 'aluguel' | 'venda' | 'ambos'
 
@@ -81,6 +82,18 @@ export async function getOrganizationBySlug(slug: string): Promise<SiteOrganizat
   const admin = createAdminClient()
   const { data } = await admin.from('organizations').select(ORG_FIELDS).eq('slug', slug).maybeSingle()
   return (data as SiteOrganization | null) ?? null
+}
+
+export async function getPublishedSiteCustomization(
+  organization: SiteOrganization,
+): Promise<SiteCustomization> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('site_customizations')
+    .select('published')
+    .eq('organization_id', organization.id)
+    .maybeSingle()
+  return getSiteCustomization(organization, data?.published)
 }
 
 export async function getOrganizationByDomain(domain: string): Promise<SiteOrganization | null> {
