@@ -41,11 +41,11 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-foreground/70 via-foreground/50 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/55 to-foreground/45" />
         </div>
 
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-8 px-4 py-20 sm:px-6 md:py-28 lg:px-8">
-          <div className="max-w-2xl">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-8 px-4 py-12 sm:px-6 md:py-20 lg:flex-row lg:items-center lg:gap-16 lg:px-8">
+          <div className="order-2 max-w-xl lg:order-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-background/15 px-3 py-1 text-sm font-medium text-background backdrop-blur">
               <ShieldCheck className="size-4" aria-hidden="true" />
               {content.hero.eyebrow} · {content.brand.creci || 'Imobiliária credenciada'}
@@ -57,7 +57,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
               {content.hero.description}
             </p>
           </div>
-          <div className="w-full max-w-3xl">
+          <div className="order-1 w-full lg:order-1 lg:flex-1">
             <HeroSearch baseHref={base} />
           </div>
         </div>

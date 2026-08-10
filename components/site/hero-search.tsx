@@ -1,128 +1,148 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { ArrowRight, Building2, MapPin, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 const TYPES = [
-  { value: 'all', label: 'Todos os tipos' },
+  { value: 'all', label: 'Todos os imóveis' },
   { value: 'apartment', label: 'Apartamento' },
   { value: 'house', label: 'Casa' },
   { value: 'commercial', label: 'Comercial' },
   { value: 'land', label: 'Terreno' },
 ]
 
+const AREA_OPTIONS = [
+  { value: 'all', label: 'Qualquer área' },
+  ...Array.from({ length: 7 }, (_, index) => {
+    const value = 40 + index * 10
+    return { value: String(value), label: `A partir de ${value} m²` }
+  }),
+  ...Array.from({ length: 8 }, (_, index) => {
+    const value = 200 + index * 100
+    return { value: String(value), label: `A partir de ${value} m²` }
+  }),
+  { value: '1000', label: '1000+ m²' },
+]
+
 export function HeroSearch({ baseHref }: { baseHref: string }) {
   const router = useRouter()
-  const [purpose, setPurpose] = useState<'venda' | 'aluguel'>('venda')
+  const [purpose, setPurpose] = useState<'venda' | 'aluguel'>('aluguel')
   const [type, setType] = useState('all')
   const [bedrooms, setBedrooms] = useState('all')
-  const [minArea, setMinArea] = useState('')
-  const [maxArea, setMaxArea] = useState('')
-  const [q, setQ] = useState('')
+  const [minArea, setMinArea] = useState('all')
+  const [maxArea, setMaxArea] = useState('all')
+  const [neighborhood, setNeighborhood] = useState('')
 
   function search() {
-    const params = new URLSearchParams()
-    params.set('purpose', purpose)
+    const params = new URLSearchParams({ purpose })
     if (type !== 'all') params.set('type', type)
     if (bedrooms !== 'all') params.set('bedrooms', bedrooms)
-    if (minArea.trim()) params.set('minArea', minArea.trim())
-    if (maxArea.trim()) params.set('maxArea', maxArea.trim())
-    if (q.trim()) params.set('q', q.trim())
+    if (minArea !== 'all') params.set('minArea', minArea)
+    if (maxArea !== 'all') params.set('maxArea', maxArea === '1000' ? '' : maxArea)
+    if (neighborhood.trim()) {
+      params.set('neighborhood', neighborhood.trim())
+      params.set('q', neighborhood.trim())
+    }
     router.push(`${baseHref}/imoveis?${params.toString()}`)
   }
 
   return (
-    <div className="w-full rounded-2xl border border-border/60 bg-background/95 p-4 shadow-xl backdrop-blur sm:p-5">
-      <div className="mb-4 inline-flex rounded-lg bg-muted p-1">
-        {(['venda', 'aluguel'] as const).map((p) => (
+    <div className="w-full max-w-md rounded-xl border border-border/70 bg-background p-5 shadow-2xl sm:p-6">
+      <div className="flex gap-2">
+        <Button type="button" variant="default" className="flex-1" onClick={() => setPurpose('venda')}>
+          <Search data-icon="inline-start" />
+          Buscar imóvel
+        </Button>
+        <Button type="button" variant="outline" className="flex-1" onClick={() => router.push(`${baseHref}/anunciar`)}>
+          Anunciar imóvel
+        </Button>
+      </div>
+
+      <h2 className="mt-6 text-balance font-display text-3xl font-semibold leading-tight text-primary">
+        Encontre seu novo imóvel em poucos cliques
+      </h2>
+
+      <div className="mt-6 flex border-b border-border">
+        {(['aluguel', 'venda'] as const).map((value) => (
           <button
-            key={p}
+            key={value}
             type="button"
-            onClick={() => setPurpose(p)}
+            onClick={() => setPurpose(value)}
             className={cn(
-              'rounded-md px-4 py-1.5 text-sm font-medium transition-colors',
-              purpose === p
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
+              'flex-1 border-b-2 px-4 pb-3 text-sm font-medium transition-colors',
+              purpose === value ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground',
             )}
           >
-            {p === 'venda' ? 'Comprar' : 'Alugar'}
+            {value === 'aluguel' ? 'Alugar' : 'Comprar'}
           </button>
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-end">
-        <div className="flex-1">
-          <Label htmlFor="hero-q" className="mb-1.5 text-xs text-muted-foreground">
-            Onde você procura?
-          </Label>
-          <Input
-            id="hero-q"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) search()
-            }}
-            placeholder="Bairro, cidade ou título"
-          />
-        </div>
-        <div className="w-full md:w-52">
-          <Label htmlFor="hero-type" className="mb-1.5 text-xs text-muted-foreground">
-            Tipo de imóvel
-          </Label>
-          <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
-            <SelectTrigger id="hero-type" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>
-                  {t.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-full md:w-40">
-          <Label htmlFor="hero-bedrooms" className="mb-1.5 text-xs text-muted-foreground">Quartos</Label>
-          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
-            <SelectTrigger id="hero-bedrooms" className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer</SelectItem>
-              <SelectItem value="1">1+ quarto</SelectItem>
-              <SelectItem value="2">2+ quartos</SelectItem>
-              <SelectItem value="3">3+ quartos</SelectItem>
-              <SelectItem value="4">4+ quartos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid grid-cols-2 gap-2 md:w-48">
-          <div>
-            <Label htmlFor="hero-min-area" className="mb-1.5 text-xs text-muted-foreground">Mín. m²</Label>
-            <Input id="hero-min-area" type="number" min="0" value={minArea} onChange={(e) => setMinArea(e.target.value)} placeholder="60" />
-          </div>
-          <div>
-            <Label htmlFor="hero-max-area" className="mb-1.5 text-xs text-muted-foreground">Máx. m²</Label>
-            <Input id="hero-max-area" type="number" min="0" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} placeholder="180" />
+      <div className="divide-y divide-border">
+        <div className="flex gap-3 py-4">
+          <MapPin className="mt-0.5 size-5 shrink-0 text-foreground" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <Label htmlFor="hero-neighborhood" className="text-sm font-medium">Bairro</Label>
+            <Input id="hero-neighborhood" value={neighborhood} onChange={(event) => setNeighborhood(event.target.value)} className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus-visible:ring-0" placeholder="Busque por bairro" />
           </div>
         </div>
-        <Button onClick={search} className="h-10 gap-2 md:w-auto">
-          <Search className="size-4" aria-hidden="true" />
-          Buscar imóveis
-        </Button>
+
+        <div className="flex gap-3 py-4">
+          <Building2 className="mt-0.5 size-5 shrink-0 text-foreground" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <Label htmlFor="hero-type" className="text-sm font-medium">Tipo de imóvel</Label>
+            <Select value={type} onValueChange={(value) => setType(value ?? 'all')}>
+              <SelectTrigger id="hero-type" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue>{(value) => TYPES.find((item) => item.value === value)?.label ?? 'Todos os imóveis'}</SelectValue></SelectTrigger>
+              <SelectContent>{TYPES.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 py-4">
+          <div>
+            <Label htmlFor="hero-min-area" className="text-sm font-medium">Área mínima</Label>
+            <Select value={minArea} onValueChange={(value) => setMinArea(value ?? 'all')}>
+              <SelectTrigger id="hero-min-area" className="mt-1 h-8 text-sm"><SelectValue>{(value) => AREA_OPTIONS.find((item) => item.value === value)?.label ?? 'Qualquer área'}</SelectValue></SelectTrigger>
+              <SelectContent>{AREA_OPTIONS.map((item) => <SelectItem key={`min-${item.value}`} value={item.value}>{item.label}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="hero-max-area" className="text-sm font-medium">Área máxima</Label>
+            <Select value={maxArea} onValueChange={(value) => setMaxArea(value ?? 'all')}>
+              <SelectTrigger id="hero-max-area" className="mt-1 h-8 text-sm"><SelectValue>{(value) => (value === '1000' ? '1000+ m²' : value === 'all' || !value ? 'Qualquer área' : `Até ${value} m²`)}</SelectValue></SelectTrigger>
+              <SelectContent>{AREA_OPTIONS.map((item) => <SelectItem key={`max-${item.value}`} value={item.value}>{item.value === '1000' ? '1000+ m²' : item.value === 'all' ? item.label : `Até ${item.value} m²`}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex gap-3 py-4">
+          <span className="mt-0.5 flex size-5 items-center justify-center text-sm font-semibold" aria-hidden="true">$</span>
+          <div className="min-w-0 flex-1">
+            <Label htmlFor="hero-bedrooms" className="text-sm font-medium">Quartos</Label>
+            <Select value={bedrooms} onValueChange={(value) => setBedrooms(value ?? 'all')}>
+              <SelectTrigger id="hero-bedrooms" className="mt-1 h-7 border-0 px-0 text-sm shadow-none focus:ring-0"><SelectValue>{(value) => (!value || value === 'all' ? 'Qualquer quantidade' : `${value} quarto${value === '1' ? '' : 's'} ou mais`)}</SelectValue></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Qualquer quantidade</SelectItem>
+                <SelectItem value="1">1 quarto ou mais</SelectItem>
+                <SelectItem value="2">2 quartos ou mais</SelectItem>
+                <SelectItem value="3">3 quartos ou mais</SelectItem>
+                <SelectItem value="4">4 quartos ou mais</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
+
+      <Button onClick={search} className="mt-5 h-12 w-full gap-2">
+        Buscar imóvel
+        <ArrowRight data-icon="inline-end" />
+      </Button>
     </div>
   )
 }
