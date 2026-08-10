@@ -2,8 +2,12 @@ export interface Plan {
   id: 'essencial' | 'profissional' | 'escala'
   name: string
   tagline: string
-  /** Preço mensal em reais (BRL). */
+  /** Preço mensal em reais (BRL) — usado apenas para exibição. */
   priceMonthly: number
+  /** Preço mensal em centavos (BRL) — fonte de verdade do servidor no checkout. */
+  priceInCents: number
+  /** Plano fechado por contato/vendas (sem checkout automático). */
+  contactOnly?: boolean
   /** Destaque visual do plano no grid. */
   featured?: boolean
   /** Limite de imóveis ativos descrito ao cliente. */
@@ -20,6 +24,7 @@ export const PLANS: Plan[] = [
     name: 'Essencial',
     tagline: 'Para imobiliárias começando a digitalizar a gestão.',
     priceMonthly: 149,
+    priceInCents: 14900,
     properties: 'Até 50 imóveis ativos',
     seats: 'Até 3 corretores',
     features: [
@@ -36,6 +41,7 @@ export const PLANS: Plan[] = [
     name: 'Profissional',
     tagline: 'A escolha da maioria das imobiliárias em crescimento.',
     priceMonthly: 349,
+    priceInCents: 34900,
     featured: true,
     properties: 'Até 250 imóveis ativos',
     seats: 'Até 10 corretores',
@@ -54,6 +60,8 @@ export const PLANS: Plan[] = [
     name: 'Escala',
     tagline: 'Para redes e imobiliárias com alto volume.',
     priceMonthly: 799,
+    priceInCents: 79900,
+    contactOnly: true,
     properties: 'Imóveis ilimitados',
     seats: 'Corretores ilimitados',
     features: [

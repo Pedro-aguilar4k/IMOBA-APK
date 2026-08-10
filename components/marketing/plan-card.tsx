@@ -47,7 +47,7 @@ export function PlanCard({ plan }: PlanCardProps) {
       </ul>
 
       <Link
-        href={`/contato?plano=${plan.id}`}
+        href={plan.contactOnly ? `/contato?plano=${plan.id}` : `/assinar/${plan.id}`}
         className={cn(
           buttonVariants({ variant: plan.featured ? 'default' : 'outline', size: 'lg' }),
           'mt-7 h-12 rounded-full text-base font-semibold',
