@@ -124,8 +124,74 @@ async function seedSubscriptions() {
   console.log('[v0] Assinaturas demo semeadas:', demo.length)
 }
 
+const CLIENT_EMAIL = 'cliente@imoba.com.br'
+const CLIENT_PASSWORD = 'ImobaCliente#2026'
+
+async function ensureClientAdmin() {
+  const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+  let user = list?.users?.find((u) => u.email === CLIENT_EMAIL)
+
+  if (!user) {
+    const { data, error } = await admin.auth.admin.createUser({
+      email: CLIENT_EMAIL,
+      password: CLIENT_PASSWORD,
+      email_confirm: true,
+      user_metadata: { name: 'Carla Mendes' },
+      app_metadata: { onboarding_status: 'active' },
+    })
+    if (error) throw error
+    user = data.user
+    console.log('[v0] Cliente demo criado:', CLIENT_EMAIL)
+  } else {
+    await admin.auth.admin.updateUserById(user.id, { password: CLIENT_PASSWORD, email_confirm: true })
+    console.log('[v0] Cliente demo atualizado:', CLIENT_EMAIL)
+  }
+
+  // Organização da imobiliária (idempotente por nome).
+  const orgName = '[DEMO] Imobiliária Horizonte'
+  let { data: org } = await admin
+    .from('organizations')
+    .select('id')
+    .eq('name', orgName)
+    .limit(1)
+    .maybeSingle()
+
+  if (!org) {
+    const { data: created } = await admin
+      .from('organizations')
+      .insert({ name: orgName, cnpj: '12345678000190', created_by: user.id })
+      .select('id')
+      .single()
+    org = created
+  }
+
+  // Papel admin vinculado à organização.
+  const { data: roles } = await admin
+    .from('user_roles')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('role', 'admin')
+    .limit(1)
+  if (!roles || roles.length === 0) {
+    await admin.from('user_roles').insert({ user_id: user.id, role: 'admin', organization_id: org.id })
+  } else {
+    await admin.from('user_roles').update({ organization_id: org.id }).eq('id', roles[0].id)
+  }
+  await admin.from('profiles').update({ role: 'admin', name: 'Carla Mendes', email: CLIENT_EMAIL }).eq('id', user.id)
+
+  // Vincula a assinatura demo da Horizonte a este owner/organização.
+  await admin
+    .from('subscriptions')
+    .update({ owner_user_id: user.id, organization_id: org.id })
+    .eq('contact_email', 'demo-horizonte@imoba.com.br')
+
+  return user
+}
+
 await ensureSuperadmin()
 await seedSubscriptions()
+await ensureClientAdmin()
 console.log('[v0] Concluído.')
 console.log('[v0] Login superadmin:', SUPERADMIN_EMAIL, '/', SUPERADMIN_PASSWORD)
+console.log('[v0] Login cliente:', CLIENT_EMAIL, '/', CLIENT_PASSWORD)
 process.exit(0)

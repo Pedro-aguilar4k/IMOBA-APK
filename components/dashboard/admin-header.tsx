@@ -1,6 +1,7 @@
 'use client'
 
-import { LogOut, Menu } from 'lucide-react'
+import { CreditCard, LogOut, Menu } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -36,6 +37,11 @@ export function AdminHeader({ email }: AdminHeaderProps) {
               <p className="text-sm font-semibold">Administrador</p>
               <p className="truncate text-xs text-muted-foreground">{email}</p>
             </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link href="/admin/conta" />}>
+              <CreditCard className="size-4" aria-hidden="true" />
+              Minha assinatura
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               <LogOut className="size-4" aria-hidden="true" />
