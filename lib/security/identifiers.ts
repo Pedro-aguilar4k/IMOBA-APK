@@ -7,7 +7,7 @@ export function digitsOnly(value: string) {
 }
 
 export function hashIdentifier(value: string) {
-  const secret = process.env.SUPABASE_JWT_SECRET
+  const secret = process.env.IDENTIFIER_SECRET
 
   if (!secret) {
     throw new Error('Segredo de segurança indisponível.')

@@ -1,7 +1,17 @@
 import { updateSession } from '@/lib/supabase/proxy'
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
+import { getClientIp, limitLoginIp, rateLimitHeaders } from '@/lib/security/rate-limit'
 
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === '/api/auth/login' && request.method === 'POST') {
+    const result = await limitLoginIp(getClientIp(request.headers))
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Muitas tentativas. Aguarde um momento e tente novamente.' },
+        { status: 429, headers: rateLimitHeaders(result) },
+      )
+    }
+  }
   return await updateSession(request)
 }
 

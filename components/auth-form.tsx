@@ -16,16 +16,10 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { createClient } from '@/lib/supabase/client'
 import { resolveLoginIdentifier } from '@/app/(app)/auth/login/actions'
-import {
-  authenticateBiometric,
-  clearBiometric,
-  enableBiometric,
-  isBiometricAvailable,
-  isBiometricEnabled,
-  updateBiometricTokens,
-} from '@/lib/biometric'
+import { isBiometricAvailable } from '@/lib/biometric'
 
 interface AuthFormProps {
   activated?: boolean
@@ -55,7 +49,7 @@ export default function AuthForm({
     void isBiometricAvailable().then((available) => {
       if (!active) return
       setBiometricSupported(available)
-      setBiometricEnabled(isBiometricEnabled())
+      setBiometricEnabled(available)
     })
     return () => {
       active = false
@@ -74,40 +68,31 @@ export default function AuthForm({
     setLoading(true)
 
     try {
-      const { email } = await resolveLoginIdentifier(identifier)
-      if (!email) {
-        setError('E-mail/CPF ou senha inválidos.')
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, password }),
+      })
+      const result = await response.json() as { error?: string; offerPasskey?: boolean }
+      if (!response.ok) {
+        setError(result.error ?? 'E-mail/CPF ou senha inválidos.')
         return
       }
 
-      const supabase = createClient()
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-
-      if (signInError || !data.session) {
-        if (signInError?.code === 'email_not_confirmed') {
-          setError('Confirme seu e-mail antes de entrar.')
-        } else if (signInError?.status === 429) {
-          setError('Muitas tentativas. Aguarde um momento e tente novamente.')
-        } else {
-          setError('E-mail/CPF ou senha inválidos.')
-        }
-        return
-      }
-
-      const tokens = {
-        accessToken: data.session.access_token,
-        refreshToken: data.session.refresh_token,
-      }
-
-      if (rememberMe && biometricSupported) {
+      if (rememberMe && biometricSupported && result.offerPasskey) {
         try {
-          if (isBiometricEnabled()) {
-            updateBiometricTokens(tokens)
-          } else {
-            await enableBiometric({ email, ...tokens })
+          const optionsResponse = await fetch('/api/auth/passkey/register/options', { method: 'POST' })
+          if (optionsResponse.ok) {
+            const optionsJSON = await optionsResponse.json()
+            const registration = await startRegistration({ optionsJSON })
+            await fetch('/api/auth/passkey/register/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(registration),
+            })
           }
         } catch {
-          // User cancelled biometric enrollment — continue logging in normally.
+          // O cancelamento da oferta de passkey não interrompe o login normal.
         }
       }
 
@@ -123,34 +108,38 @@ export default function AuthForm({
     setError('')
     setInfo('')
 
-    if (!biometricEnabled) {
-      setInfo('Entre com sua senha uma vez marcando "Lembrar de mim" para ativar o acesso biométrico.')
+    if (!biometricEnabled || !identifier.trim()) {
+      setInfo('Informe seu e-mail ou CPF para entrar com a passkey cadastrada.')
       return
     }
 
     setBiometricLoading(true)
     try {
-      const stored = await authenticateBiometric()
-      const supabase = createClient()
-      const { data, error: sessionError } = await supabase.auth.setSession({
-        access_token: stored.accessToken,
-        refresh_token: stored.refreshToken,
+      const optionsResponse = await fetch('/api/auth/passkey/authenticate/options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier }),
       })
-
-      if (sessionError || !data.session) {
-        clearBiometric()
-        setBiometricEnabled(false)
-        setError('Sua sessão biométrica expirou. Entre com sua senha novamente.')
+      const options = await optionsResponse.json()
+      if (!optionsResponse.ok) {
+        setError(options.error ?? 'Passkey não disponível para este acesso.')
         return
       }
 
-      updateBiometricTokens({
-        accessToken: data.session.access_token,
-        refreshToken: data.session.refresh_token,
+      const authentication = await startAuthentication({ optionsJSON: options })
+      const verifyResponse = await fetch('/api/auth/passkey/authenticate/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(authentication),
       })
+      const result = await verifyResponse.json()
+      if (!verifyResponse.ok) {
+        setError(result.error ?? 'Não foi possível validar a passkey.')
+        return
+      }
       goToApp()
     } catch {
-      setError('Não foi possível validar a biometria. Tente novamente.')
+      setError('Não foi possível validar a passkey. Tente novamente.')
     } finally {
       setBiometricLoading(false)
     }

@@ -14,11 +14,17 @@ const securityHeaders = [
 const nextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '105mb',
+      bodySizeLimit: '5mb',
     },
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
   },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
