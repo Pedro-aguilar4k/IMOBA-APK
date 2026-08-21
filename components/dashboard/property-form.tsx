@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ImagePlus, LoaderCircle, X } from 'lucide-react'
-import { saveProperty, type PropertyActionResult } from '@/app/(app)/dashboard/corretor/properties/actions'
+import {
+  createPropertyUpload,
+  registerPropertyUpload,
+  saveProperty,
+  type PropertyActionResult,
+} from '@/app/(app)/dashboard/corretor/properties/actions'
+import { createClient } from '@/lib/supabase/client'
 import {
   PROPERTY_FEATURES,
   PROPERTY_STATUSES,
@@ -64,9 +70,36 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
 
     try {
       const formData = new FormData(event.currentTarget)
+      formData.delete('photos')
       const saved = await saveProperty(formData)
       setResult(saved)
       if (!saved.propertyId || saved.error) return
+
+      if (files.length) {
+        const supabase = createClient()
+        for (const file of files) {
+          const prepared = await createPropertyUpload(saved.propertyId, {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+          })
+          if ('error' in prepared) throw new Error(prepared.error)
+
+          const { error: uploadError } = await supabase.storage
+            .from('property-media')
+            .uploadToSignedUrl(prepared.path, prepared.token, file, {
+              contentType: file.type,
+            })
+          if (uploadError) throw new Error('Não foi possível enviar uma das fotos.')
+
+          const registered = await registerPropertyUpload(saved.propertyId, {
+            path: prepared.path,
+            type: file.type,
+            size: file.size,
+          })
+          if ('error' in registered) throw new Error(registered.error)
+        }
+      }
 
       router.push(`/dashboard/corretor/properties/${saved.propertyId}`)
       router.refresh()
