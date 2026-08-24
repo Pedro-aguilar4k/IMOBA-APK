@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import * as maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { formatBRLShort, propertyTypeLabel } from '@/lib/site/format'
 import type { SiteProperty } from '@/lib/site/site-data'
 
@@ -19,8 +19,8 @@ function priceLabel(property: SiteProperty) {
 
 export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<maplibregl.Map | null>(null)
-  const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map())
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+  const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map())
   const onSelectRef = useRef(onSelect)
 
   useEffect(() => {
@@ -29,25 +29,18 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    const map = new maplibregl.Map({
+    const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+    if (!accessToken) return
+
+    mapboxgl.accessToken = accessToken
+    const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '&copy; OpenStreetMap contributors',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
+      style: 'mapbox://styles/mapbox/streets-v12',
       center: [-47.334, -15.537],
       zoom: 12,
-      attributionControl: {},
+      attributionControl: true,
     })
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     mapRef.current = map
 
     return () => {
@@ -67,7 +60,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
     const located = properties.filter((property) => property.latitude != null && property.longitude != null)
     if (!located.length) return
 
-    const bounds = new maplibregl.LngLatBounds()
+    const bounds = new mapboxgl.LngLatBounds()
     located.forEach((property) => {
       const element = document.createElement('button')
       element.type = 'button'
@@ -77,7 +70,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       element.setAttribute('aria-label', `${priceLabel(property)} — ${property.title}`)
       element.onclick = () => onSelectRef.current?.(property)
 
-      const marker = new maplibregl.Marker({ element, anchor: 'bottom' })
+      const marker = new mapboxgl.Marker({ element, anchor: 'bottom' })
         .setLngLat([property.longitude!, property.latitude!])
         .addTo(map)
       marker.getElement().title = `${propertyTypeLabel(property.property_type)}: ${property.title}`
@@ -103,6 +96,10 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       })
     }
   }, [properties, selectedId])
+
+  if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
+    return <div className="flex h-full min-h-96 items-center justify-center bg-muted p-8 text-center text-sm text-muted-foreground">O mapa está temporariamente indisponível.</div>
+  }
 
   if (!properties.some((property) => property.latitude != null && property.longitude != null)) {
     return <div className="flex h-full min-h-96 items-center justify-center bg-muted p-8 text-center text-sm text-muted-foreground">Os imóveis aparecerão no mapa após a localização ser cadastrada.</div>
