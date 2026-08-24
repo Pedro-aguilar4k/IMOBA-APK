@@ -2,6 +2,7 @@ import 'server-only'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSiteCustomization, type SiteCustomization } from './customization'
+import type { NearbyPoint } from '@/lib/nearby-points'
 
 export type ListingPurpose = 'aluguel' | 'venda' | 'ambos'
 
@@ -58,6 +59,7 @@ export interface SitePropertyDetail extends SiteProperty {
   floor_number: number | null
   property_age: number | null
   images: string[]
+  nearby_points: NearbyPoint[]
 }
 
 export interface PropertyFilters {
@@ -206,7 +208,19 @@ export async function getPublicProperty(
     .map((m) => resolveMediaUrl(m.storage_path))
     .filter((url): url is string => Boolean(url))
 
-  return { ...(property as SitePropertyDetail), images, cover_url: images[0] ?? null }
+  const { data: nearbyPoints } = await admin
+    .from('property_nearby_points')
+    .select('id, name, category, latitude, longitude')
+    .eq('organization_id', organizationId)
+    .eq('property_id', propertyId)
+    .order('created_at')
+
+  return {
+    ...(property as SitePropertyDetail),
+    images,
+    cover_url: images[0] ?? null,
+    nearby_points: (nearbyPoints ?? []).map((point) => ({ ...point, source: 'custom' as const })) as NearbyPoint[],
+  }
 }
 
 export function priceFor(property: Pick<SiteProperty, 'listing_purpose' | 'rent_value' | 'sale_value'>) {

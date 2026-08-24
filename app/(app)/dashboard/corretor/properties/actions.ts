@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { propertySchema, reaisToCents, type PropertyStatus } from '@/lib/properties'
 import { requireRole } from '@/lib/auth/roles'
+import { nearbyPointsSchema } from '@/lib/nearby-points'
 
 export interface PropertyActionResult {
   success?: string
@@ -174,6 +175,15 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
     }
   }
 
+  let rawNearbyPoints: unknown = []
+  try {
+    rawNearbyPoints = JSON.parse(String(formData.get('nearbyPoints') ?? '[]'))
+  } catch {
+    return { error: 'Os pontos próximos enviados são inválidos.' }
+  }
+  const parsedNearbyPoints = nearbyPointsSchema.safeParse(rawNearbyPoints)
+  if (!parsedNearbyPoints.success) return { error: 'Revise os pontos próximos antes de continuar.' }
+
   const values = parsed.data
   const supabase = await createClient()
   const payload = {
@@ -231,6 +241,28 @@ export async function saveProperty(formData: FormData): Promise<PropertyActionRe
     const { data, error } = await supabase.from('properties').insert(payload).select('id').single()
     if (error || !data) return { error: 'Não foi possível cadastrar o imóvel.' }
     propertyId = data.id
+  }
+
+  const { error: deletePointsError } = await supabase
+    .from('property_nearby_points')
+    .delete()
+    .eq('property_id', propertyId)
+    .eq('organization_id', organizationId)
+
+  if (deletePointsError) return { error: 'O imóvel foi salvo, mas não foi possível atualizar os pontos próximos.' }
+
+  if (parsedNearbyPoints.data.length) {
+    const { error: insertPointsError } = await supabase.from('property_nearby_points').insert(
+      parsedNearbyPoints.data.map((point) => ({
+        property_id: propertyId,
+        organization_id: organizationId,
+        name: point.name,
+        category: point.category,
+        latitude: point.latitude,
+        longitude: point.longitude,
+      })),
+    )
+    if (insertPointsError) return { error: 'O imóvel foi salvo, mas não foi possível atualizar os pontos próximos.' }
   }
 
   revalidatePath('/dashboard/corretor')

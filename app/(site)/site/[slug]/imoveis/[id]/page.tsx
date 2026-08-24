@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { LeadForm } from '@/components/site/lead-form'
 import { PropertyGallery } from '@/components/site/property-gallery'
+import { PropertyLocationMap } from '@/components/site/property-location-map'
 import { VisitTracker } from '@/components/site/visit-tracker'
 import { Badge } from '@/components/ui/badge'
 import { formatBRL, formatBRLShort, propertyTypeLabel, purposeBadge } from '@/lib/site/format'
@@ -57,7 +58,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
       </div>
 
       <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-[1.6fr_1fr] lg:px-8">
-        <div>
+        <div className="min-w-0">
           <PropertyGallery images={property.images} title={property.title} />
 
           <div className="mt-6">
@@ -101,6 +102,20 @@ export default async function DetailPage({ params }: DetailPageProps) {
                   {property.description}
                 </p>
               </div>
+            )}
+
+            {property.latitude != null && property.longitude != null ? (
+              <PropertyLocationMap
+                latitude={property.latitude}
+                longitude={property.longitude}
+                title={property.title}
+                customPoints={property.nearby_points}
+              />
+            ) : (
+              <section className="mt-10 rounded-2xl border border-border bg-muted p-6">
+                <h2 className="font-display text-lg font-semibold text-foreground">Localização</h2>
+                <p className="mt-2 text-sm text-muted-foreground">A localização no mapa ainda não foi cadastrada para este imóvel.</p>
+              </section>
             )}
           </div>
         </div>

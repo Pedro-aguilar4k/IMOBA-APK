@@ -24,6 +24,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { PropertyNearbyPointsEditor } from '@/components/dashboard/property-nearby-points-editor'
+import type { PropertyNearbyPointRecord } from '@/lib/nearby-points'
 
 const MAX_PHOTOS = 20
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -32,13 +34,14 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
 interface PropertyFormProps {
   property?: PropertyRecord
   media?: PropertyMediaRecord[]
+  nearbyPoints?: PropertyNearbyPointRecord[]
 }
 
 function defaultValue(value: string | number | null | undefined) {
   return value ?? ''
 }
 
-export function PropertyForm({ property, media = [] }: PropertyFormProps) {
+export function PropertyForm({ property, media = [], nearbyPoints = [] }: PropertyFormProps) {
   const router = useRouter()
   const [files, setFiles] = useState<File[]>([])
   const [pending, setPending] = useState(false)
@@ -154,6 +157,20 @@ export function PropertyForm({ property, media = [] }: PropertyFormProps) {
               <Field data-invalid={Boolean(errorFor('zipCode'))}><FieldLabel htmlFor="zipCode">CEP</FieldLabel><Input id="zipCode" name="zipCode" defaultValue={property?.zip_code ?? ''} inputMode="numeric" placeholder="00000-000" aria-invalid={Boolean(errorFor('zipCode'))} required /><FieldError>{errorFor('zipCode')}</FieldError></Field>
             </div>
           </FieldGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pontos próximos personalizados</CardTitle>
+          <CardDescription>Marque escolas, comércios e outros locais que devem ganhar destaque no anúncio.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PropertyNearbyPointsEditor
+            points={nearbyPoints}
+            propertyLatitude={property?.latitude}
+            propertyLongitude={property?.longitude}
+          />
         </CardContent>
       </Card>
 

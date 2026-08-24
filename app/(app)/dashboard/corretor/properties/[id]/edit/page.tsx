@@ -10,6 +10,7 @@ import { requireRole } from '@/lib/auth/roles'
 import { addSignedUrls } from '@/lib/properties-server'
 import { createClient } from '@/lib/supabase/server'
 import type { PropertyMediaRecord, PropertyRecord } from '@/lib/properties'
+import type { PropertyNearbyPointRecord } from '@/lib/nearby-points'
 
 export const metadata = { title: 'Editar imóvel' }
 
@@ -17,10 +18,11 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ i
   const { id } = await params
   const access = await requireRole('corretor')
   const supabase = await createClient()
-  const [{ data: profile }, { data }, { data: mediaData }] = await Promise.all([
+  const [{ data: profile }, { data }, { data: mediaData }, { data: nearbyData }] = await Promise.all([
     supabase.from('profiles').select('name, email').eq('id', access.userId).single(),
     supabase.from('properties').select('*').eq('id', id).eq('corretor_id', access.userId).single(),
     supabase.from('property_media').select('*').eq('property_id', id).order('position'),
+    supabase.from('property_nearby_points').select('*').eq('property_id', id).order('created_at'),
   ])
 
   if (!data) notFound()
@@ -41,7 +43,7 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ i
           <CardContent><PropertyMediaGrid media={media} editable /></CardContent>
         </Card>
 
-        <PropertyForm property={property} media={media} />
+        <PropertyForm property={property} media={media} nearbyPoints={(nearbyData ?? []) as PropertyNearbyPointRecord[]} />
       </main>
     </div>
   )
