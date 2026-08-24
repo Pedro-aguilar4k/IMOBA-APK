@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatBRL, formatBRLShort, propertyTypeLabel, purposeBadge } from '@/lib/site/format'
 import type { SiteProperty } from '@/lib/site/site-data'
 
-export function PropertyCard({ property, baseHref }: { property: SiteProperty; baseHref: string }) {
+export function PropertyCard({ property, baseHref, compact = false }: { property: SiteProperty; baseHref: string; compact?: boolean }) {
   const isSale = property.listing_purpose === 'venda'
   const priceCents = isSale ? property.sale_value : property.rent_value
   const price = isSale ? formatBRLShort(priceCents) : formatBRL(priceCents)
@@ -15,7 +15,7 @@ export function PropertyCard({ property, baseHref }: { property: SiteProperty; b
       href={`${baseHref}/imoveis/${property.id}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className={`relative overflow-hidden bg-muted ${compact ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}>
         {property.cover_url ? (
           <Image
             src={property.cover_url || "/placeholder.svg"}
@@ -35,9 +35,9 @@ export function PropertyCard({ property, baseHref }: { property: SiteProperty; b
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className={`flex flex-1 flex-col ${compact ? 'gap-2.5 p-3.5' : 'gap-3 p-4'}`}>
         <div>
-          <p className="font-display text-lg font-semibold text-foreground">
+          <p className={`font-display font-semibold text-foreground ${compact ? 'text-base' : 'text-lg'}`}>
             {price}
             {!isSale && <span className="text-sm font-normal text-muted-foreground">/mês</span>}
           </p>
