@@ -17,8 +17,8 @@ export function MapPropertyPanel({ property, baseHref, onClose }: MapPropertyPan
   const price = isSale ? formatBRLShort(priceCents) : formatBRL(priceCents)
 
   return (
-    <article className="absolute bottom-4 left-4 right-4 z-10 overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur md:right-auto md:w-[22rem]">
-      <div className="relative aspect-[16/7] overflow-hidden bg-muted">
+    <article className="flex h-full min-h-[28rem] flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+      <div className="relative aspect-[16/8] overflow-hidden bg-muted lg:aspect-auto lg:h-56">
         {property.cover_url ? (
           <Image src={property.cover_url} alt={property.title} fill sizes="352px" className="object-cover" />
         ) : (
@@ -37,7 +37,7 @@ export function MapPropertyPanel({ property, baseHref, onClose }: MapPropertyPan
         </button>
       </div>
 
-      <div className="flex flex-col gap-3 p-4">
+      <div className="flex flex-1 flex-col gap-4 p-5 lg:p-6">
         <div>
           <div className="flex items-center justify-between gap-3">
             <p className="font-display text-xl font-semibold text-foreground">
@@ -60,7 +60,7 @@ export function MapPropertyPanel({ property, baseHref, onClose }: MapPropertyPan
           {property.usable_area_sqm != null && <span className="flex items-center gap-1.5"><Ruler className="size-4" aria-hidden="true" />{property.usable_area_sqm} m²</span>}
         </div>
 
-        <Link href={`${baseHref}/imoveis/${property.id}`} className="flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+        <Link href={`${baseHref}/imoveis/${property.id}`} className="mt-auto flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
           Ver detalhes do imóvel
           <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
