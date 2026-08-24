@@ -44,6 +44,7 @@ export interface SiteProperty {
   iptu_value: number
   features: string[]
   cover_url: string | null
+  images: string[]
   latitude: number | null
   longitude: number | null
   created_at: string
@@ -114,17 +115,20 @@ export async function getOrganizationByDomain(domain: string): Promise<SiteOrgan
   return (data as SiteOrganization | null) ?? null
 }
 
-function coverFromMedia(media: { property_id: string; storage_path: string; is_cover: boolean; position: number }[]) {
-  const byProperty = new Map<string, string>()
+function imagesFromMedia(media: { property_id: string; storage_path: string; is_cover: boolean; position: number }[]) {
+  const byProperty = new Map<string, string[]>()
   const sorted = [...media].sort(
     (a, b) => Number(b.is_cover) - Number(a.is_cover) || a.position - b.position,
   )
-  for (const m of sorted) {
-    if (!byProperty.has(m.property_id)) {
-      const url = resolveMediaUrl(m.storage_path)
-      if (url) byProperty.set(m.property_id, url)
-    }
+
+  for (const item of sorted) {
+    const url = resolveMediaUrl(item.storage_path)
+    if (!url) continue
+    const images = byProperty.get(item.property_id) ?? []
+    images.push(url)
+    byProperty.set(item.property_id, images)
   }
+
   return byProperty
 }
 
@@ -155,7 +159,7 @@ export async function listPublicProperties(
   if (filters.q) query = query.or(`title.ilike.%${filters.q}%,neighborhood.ilike.%${filters.q}%,city.ilike.%${filters.q}%`)
 
   const { data: rows } = await query
-  const properties = (rows ?? []) as Omit<SiteProperty, 'cover_url'>[]
+  const properties = (rows ?? []) as Omit<SiteProperty, 'cover_url' | 'images'>[]
   if (properties.length === 0) return []
 
   const { data: media } = await admin
@@ -166,9 +170,16 @@ export async function listPublicProperties(
       'property_id',
       properties.map((p) => p.id),
     )
-  const covers = coverFromMedia(media ?? [])
+  const images = imagesFromMedia(media ?? [])
 
-  let result = properties.map((p) => ({ ...p, cover_url: covers.get(p.id) ?? null }))
+  let result = properties.map((property) => {
+    const propertyImages = images.get(property.id) ?? []
+    return {
+      ...property,
+      images: propertyImages,
+      cover_url: propertyImages[0] ?? null,
+    }
+  })
 
   // Filtro de preço aplicado no servidor (considera aluguel ou venda conforme finalidade).
   if (filters.maxPrice) {
