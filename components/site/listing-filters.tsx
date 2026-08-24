@@ -78,8 +78,8 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
         <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
         Filtrar imóveis
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 lg:items-end">
-        <div className="grid gap-1.5 lg:col-span-2">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-12 xl:items-end">
+        <div className="grid gap-1.5 xl:col-span-3">
           <Label htmlFor="q">Busca</Label>
           <Input
             id="q"
@@ -91,7 +91,7 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             placeholder="Bairro, cidade ou título"
           />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-1.5 xl:col-span-2">
           <Label htmlFor="neighborhood-filter">Bairro</Label>
           <Input id="neighborhood-filter" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Ex.: Centro" />
         </div>
@@ -148,11 +148,11 @@ export function ListingFilters({ slug, initial }: ListingFiltersProps) {
             </SelectContent>
           </Select>
         </div>
+        <Button onClick={apply} className="h-11 w-full gap-2 rounded-full md:px-6 xl:col-span-2">
+          <Search className="size-4" aria-hidden="true" />
+          Aplicar filtros
+        </Button>
       </div>
-      <Button onClick={apply} className="mt-4 h-11 w-full gap-2 rounded-full md:w-auto md:px-8">
-        <Search className="size-4" aria-hidden="true" />
-        Aplicar filtros
-      </Button>
     </div>
   )
 }

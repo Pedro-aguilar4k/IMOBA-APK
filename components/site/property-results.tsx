@@ -1,29 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { MapPropertyPanel } from '@/components/site/map-property-panel'
 import { PropertyCard } from '@/components/site/property-card'
 import { PropertyMap } from '@/components/site/property-map'
 import type { SiteProperty } from '@/lib/site/site-data'
 
 export function PropertyResults({ properties, baseHref }: { properties: SiteProperty[]; baseHref: string }) {
   const [selectedId, setSelectedId] = useState<string>()
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const selected = properties.find((property) => property.id === selectedId)
 
+  function selectProperty(property: SiteProperty, scrollToCard = false) {
+    setSelectedId(property.id)
+    if (scrollToCard) {
+      requestAnimationFrame(() => {
+        cardRefs.current[property.id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      })
+    }
+  }
+
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(28rem,1.05fr)]">
-      <div className="grid content-start gap-6 sm:grid-cols-2 lg:max-h-[calc(100vh-17rem)] lg:overflow-y-auto lg:pr-2">
+    <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(28rem,0.88fr)_minmax(34rem,1.12fr)] xl:grid-cols-[minmax(34rem,0.92fr)_minmax(42rem,1.08fr)]">
+      <div className="grid content-start gap-4 sm:grid-cols-2">
         {properties.map((property) => (
-          <div key={property.id} onMouseEnter={() => setSelectedId(property.id)} onFocus={() => setSelectedId(property.id)}>
-            <PropertyCard property={property} baseHref={baseHref} />
+          <div
+            key={property.id}
+            ref={(element) => { cardRefs.current[property.id] = element }}
+            onMouseEnter={() => setSelectedId(property.id)}
+            onFocus={() => setSelectedId(property.id)}
+            onClick={() => setSelectedId(property.id)}
+            className={`rounded-xl transition-shadow ${property.id === selectedId ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+          >
+            <PropertyCard property={property} baseHref={baseHref} compact />
           </div>
         ))}
       </div>
-      <div className="sticky top-4 hidden h-[calc(100vh-9rem)] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm lg:block">
-        <PropertyMap properties={properties} selectedId={selectedId} onSelect={(property) => setSelectedId(property.id)} />
-        {selected ? <p className="pointer-events-none absolute bottom-5 left-5 max-w-[18rem] rounded-xl bg-card/95 px-4 py-3 text-sm text-foreground shadow-lg">{selected.title}</p> : null}
-      </div>
-      <div className="h-[28rem] overflow-hidden rounded-2xl border border-border bg-muted lg:hidden">
-        <PropertyMap properties={properties} selectedId={selectedId} onSelect={(property) => setSelectedId(property.id)} />
+
+      <div className="order-first h-[28rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm lg:order-none lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:min-h-[38rem]">
+        <PropertyMap
+          properties={properties}
+          selectedId={selectedId}
+          onSelect={(property) => selectProperty(property, true)}
+        />
+        {selected ? (
+          <MapPropertyPanel property={selected} baseHref={baseHref} onClose={() => setSelectedId(undefined)} />
+        ) : null}
       </div>
     </div>
   )

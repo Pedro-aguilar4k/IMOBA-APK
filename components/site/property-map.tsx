@@ -21,6 +21,11 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<maplibregl.Marker[]>([])
+  const onSelectRef = useRef(onSelect)
+
+  useEffect(() => {
+    onSelectRef.current = onSelect
+  }, [onSelect])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -70,7 +75,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
       element.className = `property-price-marker${markerTone}${property.id === selectedId ? ' is-selected' : ''}`
       element.textContent = priceLabel(property)
       element.setAttribute('aria-label', `${priceLabel(property)} — ${property.title}`)
-      element.onclick = () => onSelect?.(property)
+      element.onclick = () => onSelectRef.current?.(property)
 
       const marker = new maplibregl.Marker({ element, anchor: 'bottom' })
         .setLngLat([property.longitude!, property.latitude!])
@@ -82,7 +87,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
 
     if (located.length === 1) map.flyTo({ center: [located[0].longitude!, located[0].latitude!], zoom: 14 })
     else map.fitBounds(bounds, { padding: 72, maxZoom: 14, duration: 600 })
-  }, [properties, selectedId, onSelect])
+  }, [properties, selectedId])
 
   if (!properties.some((property) => property.latitude != null && property.longitude != null)) {
     return <div className="flex h-full min-h-96 items-center justify-center bg-muted p-8 text-center text-sm text-muted-foreground">Os imóveis aparecerão no mapa após a localização ser cadastrada.</div>
