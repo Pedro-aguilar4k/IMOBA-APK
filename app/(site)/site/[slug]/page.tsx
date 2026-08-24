@@ -118,14 +118,14 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
           {[
             {
               href: `${base}/imoveis?purpose=venda`,
-              img: '/site-demo/cobertura-vista.png',
+              img: featured.find((property) => property.listing_purpose === 'venda')?.cover_url || content.hero.imageUrl,
               kicker: 'Comprar',
               title: content.sections.buyRent.title,
               text: content.sections.buyRent.description,
             },
             {
               href: `${base}/imoveis?purpose=aluguel`,
-              img: '/site-demo/studio-centro.png',
+              img: featured.find((property) => property.listing_purpose === 'aluguel')?.cover_url || content.hero.imageUrl,
               kicker: 'Alugar',
               title: 'Encontre o lar ideal para morar',
               text: 'Opções para todos os perfis, com processo simples e rápido.',
@@ -163,7 +163,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 lg:px-8">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
             <Image
-              src="/site-demo/sobrado-familia.png"
+              src={featured[1]?.cover_url || content.hero.imageUrl || '/site-demo/sobrado-familia.png'}
               alt={`Equipe ${org.name}`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
