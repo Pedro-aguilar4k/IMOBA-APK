@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { MapPropertyPanel } from '@/components/site/map-property-panel'
 import { PropertyCard } from '@/components/site/property-card'
 import { PropertyMap } from '@/components/site/property-map'
@@ -8,14 +8,10 @@ import type { SiteProperty } from '@/lib/site/site-data'
 
 export function PropertyResults({ properties, baseHref }: { properties: SiteProperty[]; baseHref: string }) {
   const [selectedId, setSelectedId] = useState<string>()
-  const resultsRef = useRef<HTMLDivElement>(null)
   const selected = properties.find((property) => property.id === selectedId)
 
   function selectProperty(property: SiteProperty) {
     setSelectedId(property.id)
-    requestAnimationFrame(() => {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
   }
 
   const cards = (
@@ -36,9 +32,9 @@ export function PropertyResults({ properties, baseHref }: { properties: SiteProp
   )
 
   return (
-    <div ref={resultsRef} className="mt-5 scroll-mt-4">
+    <div className="mt-5 transition-[min-height] duration-500 ease-out">
       {selected ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex animate-in flex-col gap-6 fade-in duration-500">
           <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(20rem,0.75fr)]">
             <div className="h-[28rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm lg:h-[34rem]">
               <PropertyMap properties={properties} selectedId={selectedId} onSelect={selectProperty} />

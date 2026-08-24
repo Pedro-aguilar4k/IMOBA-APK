@@ -17,7 +17,7 @@ export function MapPropertyPanel({ property, baseHref, onClose }: MapPropertyPan
   const price = isSale ? formatBRLShort(priceCents) : formatBRL(priceCents)
 
   return (
-    <article className="flex h-full min-h-[28rem] flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+    <article key={property.id} className="flex h-full min-h-[28rem] animate-in flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm fade-in slide-in-from-right-2 duration-300 motion-reduce:animate-none">
       <div className="relative aspect-[16/8] overflow-hidden bg-muted lg:aspect-auto lg:h-56">
         {property.cover_url ? (
           <Image src={property.cover_url} alt={property.title} fill sizes="352px" className="object-cover" />

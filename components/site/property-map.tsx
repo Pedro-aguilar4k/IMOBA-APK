@@ -20,7 +20,7 @@ function priceLabel(property: SiteProperty) {
 export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const markersRef = useRef<maplibregl.Marker[]>([])
+  const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map())
   const onSelectRef = useRef(onSelect)
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
 
     return () => {
       markersRef.current.forEach((marker) => marker.remove())
-      markersRef.current = []
+      markersRef.current.clear()
       map.remove()
       mapRef.current = null
     }
@@ -62,7 +62,7 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
     const map = mapRef.current
     if (!map) return
     markersRef.current.forEach((marker) => marker.remove())
-    markersRef.current = []
+    markersRef.current.clear()
 
     const located = properties.filter((property) => property.latitude != null && property.longitude != null)
     if (!located.length) return
@@ -81,12 +81,27 @@ export function PropertyMap({ properties, selectedId, onSelect }: PropertyMapPro
         .setLngLat([property.longitude!, property.latitude!])
         .addTo(map)
       marker.getElement().title = `${propertyTypeLabel(property.property_type)}: ${property.title}`
-      markersRef.current.push(marker)
+      markersRef.current.set(property.id, marker)
       bounds.extend([property.longitude!, property.latitude!])
     })
 
     if (located.length === 1) map.flyTo({ center: [located[0].longitude!, located[0].latitude!], zoom: 14 })
     else map.fitBounds(bounds, { padding: 72, maxZoom: 14, duration: 600 })
+  }, [properties])
+
+  useEffect(() => {
+    markersRef.current.forEach((marker, propertyId) => {
+      marker.getElement().classList.toggle('is-selected', propertyId === selectedId)
+    })
+
+    const selected = properties.find((property) => property.id === selectedId)
+    if (selected?.latitude != null && selected.longitude != null) {
+      mapRef.current?.easeTo({
+        center: [selected.longitude, selected.latitude],
+        duration: 500,
+        essential: true,
+      })
+    }
   }, [properties, selectedId])
 
   if (!properties.some((property) => property.latitude != null && property.longitude != null)) {
