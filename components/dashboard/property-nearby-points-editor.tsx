@@ -46,13 +46,13 @@ export function PropertyNearbyPointsEditor({ points: initialPoints, propertyLati
   return (
     <div className="flex flex-col gap-5">
       <input type="hidden" name="nearbyPoints" value={JSON.stringify(points)} />
-      <div ref={containerRef} className="h-64 overflow-hidden rounded-xl border border-border" aria-label="Mapa para selecionar o ponto próximo" />
+      <div ref={containerRef} className="h-56 overflow-hidden rounded-xl border border-border sm:h-64" aria-label="Mapa para selecionar o ponto próximo" />
       <p className="text-sm text-muted-foreground">Clique no mapa ou arraste o marcador para definir a localização do novo ponto.</p>
       <div className="grid gap-3 md:grid-cols-2">
         <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Nome do local" aria-label="Nome do ponto próximo" />
         <Select value={category} onValueChange={(value) => setCategory(value as NearbyCategory)}><SelectTrigger aria-label="Categoria do ponto"><SelectValue /></SelectTrigger><SelectContent>{Object.entries(NEARBY_CATEGORIES).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select>
-        <Input type="number" step="any" value={latitude} onChange={(event) => setLatitude(Number(event.target.value))} aria-label="Latitude do ponto" />
-        <Input type="number" step="any" value={longitude} onChange={(event) => setLongitude(Number(event.target.value))} aria-label="Longitude do ponto" />
+        <Input type="number" inputMode="decimal" step="any" value={latitude} onChange={(event) => setLatitude(Number(event.target.value))} aria-label="Latitude do ponto" />
+        <Input type="number" inputMode="decimal" step="any" value={longitude} onChange={(event) => setLongitude(Number(event.target.value))} aria-label="Longitude do ponto" />
       </div>
       <Button type="button" variant="outline" onClick={addPoint} disabled={name.trim().length < 2}><Plus data-icon="inline-start" />Adicionar ponto</Button>
       {points.length ? <ul className="flex flex-col gap-2">{points.map((point) => <li key={point.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3"><div className="flex min-w-0 items-center gap-3"><MapPin className="size-4 shrink-0 text-primary" /><div className="min-w-0"><p className="truncate text-sm font-medium">{point.name}</p><p className="text-xs text-muted-foreground">{NEARBY_CATEGORIES[point.category]}</p></div></div><Button type="button" size="icon-sm" variant="ghost" aria-label={`Remover ${point.name}`} onClick={() => setPoints((current) => current.filter((item) => item.id !== point.id))}><Trash2 /></Button></li>)}</ul> : <p className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">Nenhum ponto personalizado cadastrado.</p>}

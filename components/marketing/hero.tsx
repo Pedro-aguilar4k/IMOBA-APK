@@ -11,14 +11,14 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-gradient-to-b from-accent/40 to-transparent"
       />
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-16 pt-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:pb-24 lg:pt-24">
-        <div className="flex flex-col items-start">
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-12 pt-12 sm:px-6 sm:pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:pb-24 lg:pt-24">
+        <div className="flex min-w-0 flex-col items-start">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
             Plataforma de gestão para imobiliárias
           </span>
 
-          <h1 className="mt-6 text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 text-balance font-display text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:mt-6 sm:text-5xl lg:text-6xl">
             Toda a sua imobiliária em uma só plataforma
           </h1>
 
@@ -27,10 +27,10 @@ export function Hero() {
             com segurança e do jeito que a sua imobiliária precisa.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Link
               href="/planos"
-              className={cn(buttonVariants({ size: 'lg' }), 'h-13 rounded-full px-7 text-base font-semibold')}
+              className={cn(buttonVariants({ size: 'lg' }), 'h-13 w-full rounded-full px-7 text-base font-semibold sm:w-auto')}
             >
               Ver planos
               <ArrowRight className="size-5" aria-hidden="true" />
@@ -39,7 +39,7 @@ export function Hero() {
               href="/contato"
               className={cn(
                 buttonVariants({ variant: 'outline', size: 'lg' }),
-                'h-13 rounded-full px-7 text-base font-semibold',
+                'h-13 w-full rounded-full px-7 text-base font-semibold sm:w-auto',
               )}
             >
               Falar com a gente
@@ -63,7 +63,7 @@ export function Hero() {
             width={520}
             height={520}
             priority
-            className="w-full max-w-sm rounded-[2rem] lg:max-w-md"
+            className="w-full max-w-xs rounded-[2rem] sm:max-w-sm lg:max-w-md"
           />
         </div>
       </div>

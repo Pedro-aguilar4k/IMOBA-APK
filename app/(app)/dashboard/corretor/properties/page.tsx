@@ -28,9 +28,9 @@ export default async function PropertiesPage() {
             <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">Meus imóveis</h1>
             <p className="text-muted-foreground">Consulte, filtre e mantenha os dados de cada imóvel.</p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/dashboard/corretor" className={buttonVariants({ variant: 'outline' })}><ArrowLeft data-icon="inline-start" />Dashboard</Link>
-            <Link href="/dashboard/corretor/properties/new" className={buttonVariants()}><Plus data-icon="inline-start" />Novo imóvel</Link>
+          <div className="grid grid-cols-2 gap-2 sm:flex">
+            <Link href="/dashboard/corretor" className={buttonVariants({ variant: 'outline', className: 'min-h-11' })}><ArrowLeft data-icon="inline-start" />Dashboard</Link>
+            <Link href="/dashboard/corretor/properties/new" className={buttonVariants({ className: 'min-h-11' })}><Plus data-icon="inline-start" />Novo imóvel</Link>
           </div>
         </div>
         <PropertiesList properties={properties} />

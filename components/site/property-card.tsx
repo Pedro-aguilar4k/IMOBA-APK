@@ -13,7 +13,7 @@ export function PropertyCard({ property, baseHref, compact = false }: { property
   return (
     <Link
       href={`${baseHref}/imoveis/${property.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
+      className="group flex flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-lg md:hover:-translate-y-0.5"
     >
       <div className={`relative overflow-hidden bg-muted ${compact ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}>
         {property.cover_url ? (
@@ -22,7 +22,7 @@ export function PropertyCard({ property, baseHref, compact = false }: { property
             alt={property.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 md:group-hover:scale-105"
           />
         ) : (
           <div className="flex size-full items-center justify-center text-muted-foreground">Sem foto</div>

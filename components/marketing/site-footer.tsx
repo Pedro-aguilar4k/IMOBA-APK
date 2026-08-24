@@ -23,8 +23,8 @@ const FOOTER_SECTIONS = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-card/40">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
-        <div className="flex flex-col gap-4">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 sm:py-14 md:grid-cols-[1.4fr_1fr_1fr] md:gap-10">
+        <div className="col-span-2 flex flex-col gap-4 md:col-span-1">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <House className="size-5" aria-hidden="true" strokeWidth={2.25} />
@@ -67,7 +67,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-border/60">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:px-6">
           <p>© {new Date().getFullYear()} IMOBA. Todos os direitos reservados.</p>
           <p>CNPJ 00.000.000/0001-00</p>
         </div>

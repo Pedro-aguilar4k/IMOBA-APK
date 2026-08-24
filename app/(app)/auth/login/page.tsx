@@ -25,13 +25,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   if (user) redirect('/painel')
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center bg-background px-6 py-10">
+    <main className="flex min-h-svh flex-col items-center justify-start bg-background px-4 py-8 sm:justify-center sm:px-6 sm:py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <div className="flex size-20 items-center justify-center rounded-3xl bg-card shadow-lg shadow-primary/10 ring-1 ring-border">
-          <House className="size-11 text-primary" aria-hidden="true" strokeWidth={2.25} />
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-card shadow-lg shadow-primary/10 ring-1 ring-border sm:size-20 sm:rounded-3xl">
+          <House className="size-9 text-primary sm:size-11" aria-hidden="true" strokeWidth={2.25} />
         </div>
 
-        <h1 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
+        <h1 className="mt-5 text-3xl font-bold tracking-tight text-foreground sm:mt-6">
           Imob<span className="text-primary">App</span>
         </h1>
         <p className="mt-1 text-base text-muted-foreground">Seu imóvel na palma da mão</p>

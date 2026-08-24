@@ -15,7 +15,7 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-muted sm:aspect-[16/10] sm:rounded-2xl">
         <Image
           src={gallery[active] || '/placeholder.svg'}
           alt={`${title} — foto ${active + 1}`}
@@ -26,7 +26,7 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
         />
       </div>
       {gallery.length > 1 && (
-        <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+        <div className="flex snap-x gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 sm:gap-3 sm:overflow-visible sm:pb-0">
           {gallery.map((src, index) => (
             <button
               key={src}
@@ -35,7 +35,7 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
               aria-label={`Ver foto ${index + 1}`}
               aria-current={index === active}
               className={cn(
-                'relative aspect-square overflow-hidden rounded-lg border-2 transition',
+                'relative aspect-square w-18 shrink-0 snap-start overflow-hidden rounded-lg border-2 transition sm:w-auto',
                 index === active
                   ? 'border-primary'
                   : 'border-transparent opacity-70 hover:opacity-100',

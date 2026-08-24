@@ -235,13 +235,13 @@ export default function AuthForm({
           onClick={() => setShowPassword((prev) => !prev)}
           disabled={busy}
           aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-          className="absolute right-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+          className="absolute right-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
         >
           {showPassword ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
         </button>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 min-[360px]:flex-row min-[360px]:items-center min-[360px]:justify-between">
         <button
           type="button"
           onClick={() => setRememberMe((prev) => !prev)}

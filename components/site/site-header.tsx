@@ -27,7 +27,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href={base} className="flex items-center gap-2.5">
+        <Link href={base} className="flex min-w-0 items-center gap-2.5">
           {brand?.logoUrl || org.logo_url ? (
             <Image src={brand?.logoUrl || org.logo_url || "/placeholder.svg"} alt={brand?.displayName || org.name} width={36} height={36} className="rounded-md" />
           ) : (
@@ -35,7 +35,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
               {(brand?.displayName || org.name).charAt(0)}
             </span>
           )}
-          <span className="font-display text-lg font-semibold leading-tight text-foreground">
+          <span className="max-w-52 truncate font-display text-base font-semibold leading-tight text-foreground sm:max-w-xs sm:text-lg">
             {brand?.displayName || org.name}
           </span>
         </Link>
@@ -85,7 +85,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
                 key={item.label}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
+                className="flex min-h-11 items-center rounded-md px-3 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
               >
                 {item.label}
               </Link>
@@ -95,7 +95,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
                 href={wpp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ variant: 'default' }), 'mt-2 w-full gap-2')}
+                className={cn(buttonVariants({ variant: 'default' }), 'mt-2 h-12 w-full gap-2')}
               >
                 <Phone className="size-4" aria-hidden="true" />
                 Falar com corretor

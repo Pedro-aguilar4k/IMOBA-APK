@@ -132,8 +132,8 @@ export function PropertyForm({ property, media = [], nearbyPoints = [] }: Proper
               <FieldDescription>O sistema tenta extrair as coordenadas automaticamente. Se não conseguir, informe latitude e longitude abaixo.</FieldDescription>
             </Field>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field><FieldLabel htmlFor="latitude">Latitude</FieldLabel><Input id="latitude" name="latitude" type="number" step="any" defaultValue={property?.latitude ?? ''} placeholder="-23.5505" /></Field>
-              <Field><FieldLabel htmlFor="longitude">Longitude</FieldLabel><Input id="longitude" name="longitude" type="number" step="any" defaultValue={property?.longitude ?? ''} placeholder="-46.6333" /></Field>
+              <Field><FieldLabel htmlFor="latitude">Latitude</FieldLabel><Input id="latitude" name="latitude" type="number" inputMode="decimal" step="any" defaultValue={property?.latitude ?? ''} placeholder="-23.5505" /></Field>
+              <Field><FieldLabel htmlFor="longitude">Longitude</FieldLabel><Input id="longitude" name="longitude" type="number" inputMode="decimal" step="any" defaultValue={property?.longitude ?? ''} placeholder="-46.6333" /></Field>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Field data-invalid={Boolean(errorFor('street'))}>
@@ -249,9 +249,9 @@ export function PropertyForm({ property, media = [], nearbyPoints = [] }: Proper
       </Card>
 
       {result.error ? <p role="alert" className="text-sm text-destructive">{result.error}</p> : null}
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={pending}>Cancelar</Button>
-        <Button type="submit" disabled={pending}>
+      <div className="sticky bottom-0 z-20 -mx-4 flex flex-col-reverse gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+        <Button type="button" variant="outline" className="min-h-11" onClick={() => router.back()} disabled={pending}>Cancelar</Button>
+        <Button type="submit" className="min-h-11" disabled={pending}>
           {pending ? <LoaderCircle data-icon="inline-start" className="animate-spin" /> : null}
           {pending ? 'Salvando...' : property ? 'Salvar alterações' : 'Cadastrar imóvel'}
         </Button>

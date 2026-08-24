@@ -88,7 +88,7 @@ export default async function CorretorDashboard() {
       <div className="mx-auto flex min-h-svh w-full max-w-md flex-col">
         <DashboardHeader name={name} email={email} notifications={overduePayments.length} />
 
-        <main className="flex flex-1 flex-col gap-5 px-5 pb-28 pt-1">
+        <main className="flex flex-1 flex-col gap-5 px-4 pb-28 pt-1 min-[380px]:px-5">
           {/* Banner de boas-vindas */}
           <section className="relative overflow-hidden rounded-3xl bg-primary px-5 py-6 text-primary-foreground">
             <div className="absolute inset-y-0 right-0 z-0 w-1/2">
@@ -113,7 +113,7 @@ export default async function CorretorDashboard() {
           </section>
 
           {/* Cartões de estatística */}
-          <section className="grid grid-cols-2 gap-4" aria-label="Resumo da operação">
+          <section className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 min-[360px]:gap-4" aria-label="Resumo da operação">
             <StatCard
               icon={<Home className="size-6" />}
               iconClass="bg-accent text-primary"
@@ -176,7 +176,7 @@ export default async function CorretorDashboard() {
                 Ver todas
               </Link>
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3 min-[380px]:grid-cols-4">
               {quickActions.map((action) => {
                 const Icon = action.icon
                 return (
@@ -252,12 +252,12 @@ function StatCard({
   subtitle: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border bg-card p-4 min-[360px]:p-3 min-[400px]:p-4">
       <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}>
         {icon}
       </span>
       <div className="min-w-0">
-        <p className={`whitespace-nowrap text-2xl font-bold leading-none ${valueClass}`}>{value}</p>
+        <p className={`truncate text-xl font-bold leading-none min-[400px]:text-2xl ${valueClass}`}>{value}</p>
         <p className="mt-1 text-sm font-semibold text-foreground">{title}</p>
         <p className="text-xs text-muted-foreground">{subtitle}</p>
       </div>

@@ -22,7 +22,7 @@ const faqs = [
 
 export function PricingSection() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-balance font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
           Planos que crescem com a sua imobiliária
@@ -32,13 +32,13 @@ export function PricingSection() {
         </p>
       </div>
 
-      <div className="mt-16 grid gap-6 lg:grid-cols-3 lg:items-center">
+      <div className="mt-10 grid gap-6 sm:mt-16 lg:grid-cols-3 lg:items-center">
         {PLANS.map((plan) => (
           <PlanCard key={plan.id} plan={plan} />
         ))}
       </div>
 
-      <div className="mx-auto mt-24 max-w-3xl">
+      <div className="mx-auto mt-16 max-w-3xl sm:mt-24">
         <h2 className="text-center font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           Perguntas frequentes
         </h2>

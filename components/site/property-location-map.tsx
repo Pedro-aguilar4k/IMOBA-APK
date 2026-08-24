@@ -75,20 +75,20 @@ export function PropertyLocationMap({ latitude, longitude, title, customPoints }
   }
 
   return (
-    <section className="mt-10" aria-labelledby="location-heading">
+    <section className="mt-8 sm:mt-10" aria-labelledby="location-heading">
       <div className="flex flex-col gap-1">
         <h2 id="location-heading" className="font-display text-xl font-semibold text-foreground">Localização e pontos próximos</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">Serviços e lugares úteis próximos ao imóvel.</p>
       </div>
       <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card">
-        <div ref={containerRef} className="h-80 w-full sm:h-96" aria-label={`Mapa da localização de ${title}`} />
+        <div ref={containerRef} className="h-64 w-full sm:h-96" aria-label={`Mapa da localização de ${title}`} />
         <div className="p-4 sm:p-5">
           {isLoading ? (
             <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" />Buscando pontos próximos...</p>
           ) : points.length ? (
             <ul className="grid gap-2 sm:grid-cols-2">
               {points.slice(0, 10).map((point) => (
-                <li key={point.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
+                <li key={point.id} className="flex min-w-0 items-center gap-3 rounded-xl border border-border p-3">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
                     {createElement(categoryIcons[point.category], { className: 'size-4', style: { color: markerColors[point.category] }, 'aria-hidden': true })}
                   </span>

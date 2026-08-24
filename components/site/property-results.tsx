@@ -36,14 +36,14 @@ export function PropertyResults({ properties, baseHref }: { properties: SiteProp
       {selected ? (
         <div className="flex animate-in flex-col gap-6 fade-in duration-500">
           <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(20rem,0.75fr)]">
-            <div className="h-[28rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm lg:h-[34rem]">
+            <div className="h-80 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm sm:h-[28rem] lg:h-[34rem]">
               <PropertyMap properties={properties} selectedId={selectedId} onSelect={selectProperty} />
             </div>
             <MapPropertyPanel property={selected} baseHref={baseHref} onClose={() => setSelectedId(undefined)} />
           </div>
 
           <section aria-labelledby="available-properties-title">
-            <div className="mb-4 flex items-end justify-between gap-4">
+            <div className="mb-4 flex flex-col items-start gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
               <div>
                 <p className="text-sm font-medium text-primary">Imóveis disponíveis</p>
                 <h2 id="available-properties-title" className="font-display text-2xl font-semibold text-foreground">
@@ -69,7 +69,7 @@ export function PropertyResults({ properties, baseHref }: { properties: SiteProp
               <PropertyCard property={property} baseHref={baseHref} compact />
             </div>
           ))}</div>
-          <div className="order-first h-[28rem] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm lg:order-none lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:min-h-[38rem]">
+          <div className="order-first h-80 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm sm:h-[28rem] lg:order-none lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:min-h-[38rem]">
             <PropertyMap properties={properties} onSelect={selectProperty} />
           </div>
         </div>
