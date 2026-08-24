@@ -25,10 +25,10 @@ const categoryIcons: Record<NearbyCategory, ComponentType<{ className?: string; 
 
 function createIconMarker(Icon: ComponentType<{ className?: string; style?: CSSProperties; 'aria-hidden'?: boolean }>, color: string, label: string, large = false) {
   const element = document.createElement('div')
-  element.className = `flex items-center justify-center rounded-full border-2 border-background text-background shadow-lg ${large ? 'size-11' : 'size-9'}`
+  element.className = `flex items-center justify-center rounded-full border-2 border-background text-background shadow-lg ${large ? 'size-14' : 'size-7'}`
   element.style.backgroundColor = color
   element.setAttribute('aria-label', label)
-  element.innerHTML = renderToStaticMarkup(createElement(Icon, { className: large ? 'size-6' : 'size-5', 'aria-hidden': true }))
+  element.innerHTML = renderToStaticMarkup(createElement(Icon, { className: large ? 'size-8' : 'size-4', 'aria-hidden': true }))
   return element
 }
 
