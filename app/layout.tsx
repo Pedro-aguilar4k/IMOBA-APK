@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Inter, Sora } from 'next/font/google'
 import './globals.css'
+import { PwaRegister } from '@/components/pwa-register'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 const sora = Sora({ subsets: ['latin'], variable: '--font-sora', display: 'swap' })
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
   description:
     'A plataforma completa para imobiliárias gerenciarem imóveis, contratos, locatários e pagamentos com segurança.',
   applicationName: 'IMOBA',
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, title: 'IMOBA', statusBarStyle: 'default' },
   generator: 'v0.app',
   icons: {
     icon: [
@@ -34,6 +37,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`bg-background ${inter.variable} ${sora.variable}`}>
       <body className="min-h-svh bg-background font-sans antialiased">
         {children}
+        <PwaRegister />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

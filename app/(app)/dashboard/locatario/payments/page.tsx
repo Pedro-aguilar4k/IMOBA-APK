@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import LocatarioHeader from '@/components/dashboard/locatario-header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { DocumentUpload } from '@/components/dashboard/document-upload'
 
 export default async function PaymentsPage() {
   const supabase = await createClient()
@@ -80,6 +81,9 @@ export default async function PaymentsPage() {
                               : 'Cancelado'}
                       </Badge>
                     </div>
+                  </div>
+                  <div className="mt-5 border-t pt-5">
+                    <DocumentUpload paymentId={payment.id} documentType="comprovante" label="Enviar comprovante" />
                   </div>
                 </CardContent>
               </Card>

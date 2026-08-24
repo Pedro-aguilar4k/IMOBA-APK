@@ -1,0 +1,21 @@
+{
+  "name": "IMOBA — Gestão Imobiliária",
+  "short_name": "IMOBA",
+  "description": "Gestão de imóveis, contratos, pagamentos e documentos.",
+  "start_url": "/painel",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#315be8",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Painel", "url": "/painel" },
+    { "name": "Imóveis", "url": "/dashboard/corretor/properties" },
+    { "name": "Documentos", "url": "/dashboard/locatario/documents" }
+  ]
+}
