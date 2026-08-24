@@ -41,6 +41,32 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   )
 }
 
+function LivePreview({ draft }: { draft: SiteCustomization }) {
+  const theme = draft.theme
+  const buttonStyle = { backgroundColor: theme.primary, color: theme.primaryText, borderRadius: theme.buttonRadius }
+  return (
+    <div className="h-full overflow-y-auto" style={{ backgroundColor: theme.pageBackground, color: theme.pageText }}>
+      <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ backgroundColor: theme.headerBackground }}>
+        <strong className="truncate font-display">{draft.brand.displayName}</strong>
+        <span className="rounded-md px-3 py-2 text-xs font-semibold" style={buttonStyle}>{draft.navigation.cta}</span>
+      </div>
+      <div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-cover bg-center p-7" style={{ backgroundImage: `linear-gradient(${theme.heroOverlay}bb, ${theme.heroOverlay}bb), url(${draft.hero.imageUrl})` }}>
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/80">{draft.hero.eyebrow}</p>
+        <h2 className="mt-2 max-w-xl text-balance font-display text-3xl font-bold text-white">{draft.hero.title}</h2>
+        <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/80">{draft.hero.description}</p>
+        <span className="mt-4 w-fit px-4 py-2 text-sm font-semibold" style={buttonStyle}>{draft.hero.ctaLabel}</span>
+      </div>
+      <div className="grid grid-cols-4 gap-2 p-5 text-center" style={{ backgroundColor: theme.statsBackground }}>
+        {[draft.stats.available, draft.stats.sale, draft.stats.rent, draft.stats.cityPlural].map((label, index) => <div key={label}><strong className="block text-lg">{[24, 15, 9, 3][index]}</strong><span className="text-[10px]" style={{ color: theme.mutedText }}>{label}</span></div>)}
+      </div>
+      {draft.sections.featured.enabled && <div className="p-6" style={{ backgroundColor: theme.featuredBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.featured.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.featured.title}</h3><p className="mt-1 text-sm" style={{ color: theme.mutedText }}>{draft.sections.featured.description}</p><div className="mt-4 grid grid-cols-3 gap-3">{[1, 2, 3].map((item) => <div key={item} className="aspect-[4/3] rounded-lg" style={{ backgroundColor: theme.secondary }} />)}</div></div>}
+      {draft.sections.about.enabled && <div className="p-6" style={{ backgroundColor: theme.aboutBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.about.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.about.title}</h3><p className="mt-2 text-sm leading-relaxed" style={{ color: theme.mutedText }}>{draft.sections.about.body}</p></div>}
+      {draft.sections.contact.enabled && <div className="p-6" style={{ backgroundColor: theme.contactBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.contact.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.contact.title}</h3><span className="mt-4 inline-block px-4 py-2 text-sm font-semibold" style={buttonStyle}>{draft.sections.contact.whatsappLabel}</span></div>}
+      <div className="flex justify-between gap-3 p-6 text-xs" style={{ backgroundColor: theme.footerBackground, color: theme.footerText }}><span>{draft.brand.displayName}</span><span>{draft.footer.signatureText}</span></div>
+    </div>
+  )
+}
+
 export function SiteEditor({
   organization,
   initialDraft,
@@ -261,7 +287,7 @@ export function SiteEditor({
 
         <div className="min-h-[720px] overflow-hidden rounded-xl border border-border/60 bg-muted/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/60 bg-background px-4 py-3"><div className="flex items-center gap-2 text-sm font-medium"><span className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary"><Eye aria-hidden="true" /></span>Preview ao vivo</div><Badge variant="outline">Rascunho</Badge></div>
-          <iframe title={`Preview do site de ${organization.name}`} src={previewUrl} className="h-[calc(100vh-210px)] min-h-[650px] w-full bg-background" />
+          <div className="h-[calc(100vh-210px)] min-h-[650px] w-full"><LivePreview draft={draft} /></div>
         </div>
       </div>
     </div>

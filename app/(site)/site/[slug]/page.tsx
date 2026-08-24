@@ -87,7 +87,8 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       {content.sections.featured.enabled && <section className="bg-[var(--site-featured)]"><div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.featured.title}</h2>
+            <p className="text-sm font-semibold text-primary">{content.sections.featured.eyebrow}</p>
+            <h2 className="mt-1 font-display text-3xl font-bold text-foreground">{content.sections.featured.title}</h2>
             <p className="mt-1 text-muted-foreground">{content.sections.featured.description}</p>
           </div>
           <Link
@@ -171,7 +172,8 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             />
           </div>
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.about.title}</h2>
+            <p className="text-sm font-semibold text-primary">{content.sections.about.eyebrow}</p>
+            <h2 className="mt-1 font-display text-3xl font-bold text-foreground">{content.sections.about.title}</h2>
             <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
               {content.sections.about.body}
             </p>
@@ -191,7 +193,8 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       {content.sections.contact.enabled && <section id="contato" className="scroll-mt-20 bg-[var(--site-contact)]"><div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2">
           <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.contact.title}</h2>
+            <p className="text-sm font-semibold text-primary">{content.sections.contact.eyebrow}</p>
+            <h2 className="mt-1 font-display text-3xl font-bold text-foreground">{content.sections.contact.title}</h2>
             <p className="mt-2 text-pretty leading-relaxed text-muted-foreground">
               {content.sections.contact.description}
             </p>
@@ -219,6 +222,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+            <h3 className="mb-5 font-display text-xl font-semibold text-foreground">{content.sections.contact.formTitle}</h3>
             <LeadForm organizationId={org.id} />
           </div>
         </div>

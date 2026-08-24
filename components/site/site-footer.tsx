@@ -19,7 +19,7 @@ export function SiteFooter({ org, customization }: { org: SiteOrganization; cust
           <p className="max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
             {brand.tagline}
           </p>
-          {org.creci && <p className="text-xs text-muted-foreground">{org.creci}</p>}
+          {brand.creci && <p className="text-xs text-muted-foreground">{brand.creci}</p>}
         </div>
 
         <div className="flex flex-col gap-3">
@@ -28,7 +28,7 @@ export function SiteFooter({ org, customization }: { org: SiteOrganization; cust
             {navigation.home}
           </Link>
           <Link href={`${base}/imoveis`} className="text-sm text-muted-foreground hover:text-foreground">
-            Todos os imóveis
+            {navigation.properties}
           </Link>
           <Link
             href={`${base}/imoveis?purpose=venda`}
@@ -46,16 +46,16 @@ export function SiteFooter({ org, customization }: { org: SiteOrganization; cust
 
         <div className="flex flex-col gap-3">
           <h3 className="font-display text-sm font-semibold text-foreground">{footer.contactTitle}</h3>
-          {org.phone && (
+          {brand.phone && (
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              {org.phone}
+              {brand.phone}
             </span>
           )}
-          {org.email && (
+          {brand.email && (
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              {org.email}
+              {brand.email}
             </span>
           )}
           {(org.city || org.state) && (
@@ -64,14 +64,14 @@ export function SiteFooter({ org, customization }: { org: SiteOrganization; cust
               {[org.city, org.state].filter(Boolean).join(' - ')}
             </span>
           )}
-          {org.instagram && (
+          {brand.instagram && (
             <a
-              href={`https://instagram.com/${org.instagram}`}
+              href={`https://instagram.com/${brand.instagram}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
             >
-              <AtSign className="size-4 shrink-0 text-primary" aria-hidden="true" />@{org.instagram}
+              <AtSign className="size-4 shrink-0 text-primary" aria-hidden="true" />@{brand.instagram}
             </a>
           )}
         </div>

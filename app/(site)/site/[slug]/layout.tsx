@@ -44,6 +44,9 @@ export default async function SiteLayout({
     '--site-muted': safeSiteColor(theme.mutedText, defaults.muted),
     '--site-primary': safeSiteColor(theme.primary, defaults.primary),
     '--site-primary-text': safeSiteColor(theme.primaryText, defaults.primaryText),
+    '--site-secondary': safeSiteColor(theme.secondary, '#f2f4f7'),
+    '--site-card': safeSiteColor(theme.cardBackground, defaults.background),
+    '--site-hero-overlay': safeSiteColor(theme.heroOverlay, defaults.text),
     '--site-header': safeSiteColor(theme.headerBackground, defaults.background),
     '--site-stats': safeSiteColor(theme.statsBackground, '#f8fafc'),
     '--site-featured': safeSiteColor(theme.featuredBackground, defaults.background),
@@ -56,7 +59,7 @@ export default async function SiteLayout({
   } as CSSProperties
 
   return (
-    <div className="flex min-h-svh flex-col bg-[var(--site-background)] text-[var(--site-text)] [&_.bg-primary]:bg-[var(--site-primary)] [&_.text-primary]:text-[var(--site-primary)] [&_.text-muted-foreground]:text-[var(--site-muted)] [&_.bg-background]:bg-[var(--site-background)] [&_.text-foreground]:text-[var(--site-text)] [&_a[class*='bg-primary']]:text-[var(--site-primary-text)] [&_button[class*='bg-primary']]:text-[var(--site-primary-text)] [&_.rounded-md.bg-primary]:rounded-[var(--site-button-radius)]" style={style}>
+    <div className="flex min-h-svh flex-col bg-[var(--site-background)] text-[var(--site-text)] [&_.bg-primary]:bg-[var(--site-primary)] [&_.text-primary]:text-[var(--site-primary)] [&_.text-muted-foreground]:text-[var(--site-muted)] [&_.bg-background]:bg-[var(--site-background)] [&_.bg-card]:bg-[var(--site-card)] [&_.bg-secondary]:bg-[var(--site-secondary)] [&_.text-foreground]:text-[var(--site-text)] [&_a[class*='bg-primary']]:text-[var(--site-primary-text)] [&_button[class*='bg-primary']]:text-[var(--site-primary-text)] [&_.rounded-md.bg-primary]:rounded-[var(--site-button-radius)]" style={style}>
       <SiteHeader org={org} customization={customization} />
       <main className="flex-1">{children}</main>
       <SiteFooter org={org} customization={customization} />
