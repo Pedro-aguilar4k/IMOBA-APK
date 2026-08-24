@@ -7,7 +7,7 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   {
     key: 'Content-Security-Policy-Report-Only',
-    value: "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+    value: "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tile.openstreetmap.org https://vitals.vercel-insights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
   },
 ]
 
