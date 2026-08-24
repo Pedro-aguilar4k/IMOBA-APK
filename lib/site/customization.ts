@@ -48,7 +48,7 @@ export const DEFAULT_SITE_CUSTOMIZATION: SiteCustomization = {
     title: 'Encontre o lugar onde sua próxima história começa.',
     highlight: 'sua próxima história',
     description: 'Curadoria de imóveis para comprar e alugar, com atendimento próximo em cada etapa.',
-    imageUrl: '/site-demo/hero.png',
+    imageUrl: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/hero.png',
     ctaLabel: 'Explorar imóveis',
   },
   sections: {

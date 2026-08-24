@@ -93,7 +93,7 @@ export default async function CorretorDashboard() {
           <section className="relative overflow-hidden rounded-3xl bg-primary px-5 py-6 text-primary-foreground">
             <div className="absolute inset-y-0 right-0 z-0 w-1/2">
               <Image
-                src="/images/dashboard-buildings.png"
+                src="https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/images/dashboard-buildings.png"
                 alt=""
                 aria-hidden="true"
                 fill

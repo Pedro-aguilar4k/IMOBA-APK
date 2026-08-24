@@ -58,7 +58,7 @@ export function Hero() {
             className="absolute inset-0 -z-10 mx-auto h-full w-full max-w-md rounded-[2.5rem] bg-primary/10 blur-2xl"
           />
           <Image
-            src="/marketing/hero-app.png"
+            src="https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/marketing/hero-app.png"
             alt="Aplicativo IMOBA exibindo portfólio de imóveis, receita mensal e contratos em um smartphone"
             width={520}
             height={520}

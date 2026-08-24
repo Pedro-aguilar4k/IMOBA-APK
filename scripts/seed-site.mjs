@@ -25,7 +25,7 @@ async function main() {
       creci: 'CRECI-SP 12.345-J',
       city: 'São Paulo',
       state: 'SP',
-      hero_image_url: '/site-demo/hero.png',
+      hero_image_url: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/hero.png',
     })
     .eq('id', ORG_ID)
   if (orgErr) throw orgErr
@@ -57,8 +57,8 @@ async function main() {
       cond: brl(1200), iptu: brl(320),
       features: ['Varanda', 'Elevador', 'Portaria 24h', 'Ar-condicionado'],
       desc: 'Apartamento reformado com acabamento premium, sala ampla com varanda integrada e vista aberta. A poucos passos de restaurantes, parques e estações de metrô.',
-      cover: '/site-demo/apartamento-jardins.png',
-      gallery: ['/site-demo/apartamento-moderno.png', '/site-demo/suite-master.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-jardins.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-moderno.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/suite-master.png'],
     },
     {
       title: '[DEMO] Cobertura com Vista Panorâmica',
@@ -71,8 +71,8 @@ async function main() {
       cond: brl(2800), iptu: brl(900),
       features: ['Piscina', 'Churrasqueira', 'Varanda', 'Elevador'],
       desc: 'Cobertura duplex com terraço, piscina privativa e vista deslumbrante da cidade. Espaço gourmet completo e amplo living para receber.',
-      cover: '/site-demo/cobertura-vista.png',
-      gallery: ['/site-demo/apartamento-jardins.png', '/site-demo/suite-master.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/cobertura-vista.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-jardins.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/suite-master.png'],
     },
     {
       title: '[DEMO] Casa em Condomínio Fechado',
@@ -85,8 +85,8 @@ async function main() {
       cond: brl(950), iptu: brl(540),
       features: ['Churrasqueira', 'Área de serviço', 'Portaria 24h'],
       desc: 'Casa moderna em condomínio com segurança 24h, jardim amplo e área de lazer. Ambientes integrados e muita luz natural.',
-      cover: '/site-demo/casa-condominio.png',
-      gallery: ['/site-demo/sobrado-familia.png', '/site-demo/apartamento-moderno.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/casa-condominio.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/sobrado-familia.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-moderno.png'],
     },
     {
       title: '[DEMO] Studio no Centro',
@@ -99,8 +99,8 @@ async function main() {
       cond: brl(450), iptu: brl(90),
       features: ['Mobiliado', 'Elevador', 'Ar-condicionado'],
       desc: 'Studio compacto e inteligente, totalmente mobiliado, ideal para quem quer morar perto do trabalho e da vida cultural da cidade.',
-      cover: '/site-demo/studio-centro.png',
-      gallery: ['/site-demo/apartamento-moderno.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/studio-centro.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-moderno.png'],
     },
     {
       title: '[DEMO] Sobrado para Família',
@@ -113,8 +113,8 @@ async function main() {
       cond: brl(0), iptu: brl(260),
       features: ['Área de serviço', 'Churrasqueira', 'Varanda'],
       desc: 'Sobrado espaçoso com quintal, perfeito para famílias. Bairro tranquilo, arborizado e bem servido de escolas e comércio.',
-      cover: '/site-demo/sobrado-familia.png',
-      gallery: ['/site-demo/casa-condominio.png', '/site-demo/suite-master.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/sobrado-familia.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/casa-condominio.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/suite-master.png'],
     },
     {
       title: '[DEMO] Apartamento Moderno Reformado',
@@ -127,8 +127,8 @@ async function main() {
       cond: brl(890), iptu: brl(210),
       features: ['Mobiliado', 'Varanda', 'Elevador', 'Ar-condicionado'],
       desc: 'Apartamento recém-reformado com cozinha gourmet integrada, disponível para compra ou locação. Localização vibrante em Pinheiros.',
-      cover: '/site-demo/apartamento-moderno.png',
-      gallery: ['/site-demo/apartamento-jardins.png', '/site-demo/suite-master.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-moderno.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-jardins.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/suite-master.png'],
     },
     {
       title: '[DEMO] Apartamento Alto Padrão com Suíte Master',
@@ -141,8 +141,8 @@ async function main() {
       cond: brl(1800), iptu: brl(620),
       features: ['Piscina', 'Portaria 24h', 'Varanda', 'Ar-condicionado'],
       desc: 'Apartamento de alto padrão com suíte master ampla, closet e lazer completo no prédio. Pronto para morar no coração do Itaim.',
-      cover: '/site-demo/suite-master.png',
-      gallery: ['/site-demo/apartamento-jardins.png', '/site-demo/cobertura-vista.png'],
+      cover: 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/suite-master.png',
+      gallery: ['https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/apartamento-jardins.png', 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/cobertura-vista.png'],
     },
   ]
 

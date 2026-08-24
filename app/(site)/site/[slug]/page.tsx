@@ -34,7 +34,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <Image
-            src={content.hero.imageUrl || '/site-demo/hero.png'}
+            src={content.hero.imageUrl || 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/hero.png'}
             alt=""
             fill
             priority
@@ -163,7 +163,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 lg:px-8">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
             <Image
-              src={featured[1]?.cover_url || content.hero.imageUrl || '/site-demo/sobrado-familia.png'}
+              src={featured[1]?.cover_url || content.hero.imageUrl || 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/sobrado-familia.png'}
               alt={`Equipe ${org.name}`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
