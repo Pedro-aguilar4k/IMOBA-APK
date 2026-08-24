@@ -64,13 +64,13 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* FAIXA DE DESTAQUES */}
-      <section className="border-b border-border/60 bg-secondary/30">
+      <section className="border-b border-border/60 bg-[var(--site-stats)]">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-6 px-4 py-8 sm:px-6 md:grid-cols-4 lg:px-8">
           {[
-            { icon: Building2, value: all.length, label: 'Imóveis disponíveis' },
-            { icon: KeyRound, value: forSale, label: 'À venda' },
-            { icon: Home, value: forRent, label: 'Para alugar' },
-            { icon: ShieldCheck, value: cities, label: cities === 1 ? 'Cidade atendida' : 'Cidades atendidas' },
+            { icon: Building2, value: all.length, label: content.stats.available },
+            { icon: KeyRound, value: forSale, label: content.stats.sale },
+            { icon: Home, value: forRent, label: content.stats.rent },
+            { icon: ShieldCheck, value: cities, label: cities === 1 ? content.stats.citySingular : content.stats.cityPlural },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col items-center gap-1 text-center">
               <stat.icon className="size-6 text-primary" aria-hidden="true" />
@@ -84,7 +84,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* VITRINE DE IMÓVEIS */}
-      {content.sections.featured.enabled && <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      {content.sections.featured.enabled && <section className="bg-[var(--site-featured)]"><div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.featured.title}</h2>
@@ -94,7 +94,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             href={`${base}/imoveis`}
             className={cn(buttonVariants({ variant: 'outline' }), 'gap-2')}
           >
-            Ver todos
+            {content.sections.featured.ctaLabel}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
@@ -107,28 +107,28 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
           </div>
         ) : (
           <p className="mt-8 rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-            Em breve, novos imóveis por aqui.
+            {content.sections.featured.emptyText}
           </p>
         )}
-      </section>}
+      </div></section>}
 
       {/* BLOCOS COMPRAR / ALUGAR */}
-      {content.sections.buyRent.enabled && <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      {content.sections.buyRent.enabled && <section className="bg-[var(--site-buy-rent)]"><div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2">
           {[
             {
               href: `${base}/imoveis?purpose=venda`,
               img: featured.find((property) => property.listing_purpose === 'venda')?.cover_url || content.hero.imageUrl,
-              kicker: 'Comprar',
-              title: content.sections.buyRent.title,
-              text: content.sections.buyRent.description,
+              kicker: content.sections.buyRent.buyLabel,
+              title: content.sections.buyRent.buyTitle,
+              text: content.sections.buyRent.buyDescription,
             },
             {
               href: `${base}/imoveis?purpose=aluguel`,
               img: featured.find((property) => property.listing_purpose === 'aluguel')?.cover_url || content.hero.imageUrl,
-              kicker: 'Alugar',
-              title: 'Encontre o lar ideal para morar',
-              text: 'Opções para todos os perfis, com processo simples e rápido.',
+              kicker: content.sections.buyRent.rentLabel,
+              title: content.sections.buyRent.rentTitle,
+              text: content.sections.buyRent.rentDescription,
             },
           ].map((block) => (
             <Link
@@ -150,20 +150,20 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
               <h3 className="mt-1 font-display text-2xl font-bold">{block.title}</h3>
               <p className="mt-1 max-w-sm text-sm text-background/85">{block.text}</p>
               <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium">
-                Ver imóveis
+                {content.sections.buyRent.ctaLabel}
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </span>
             </Link>
           ))}
         </div>
-      </section>}
+      </div></section>}
 
       {/* SOBRE */}
-      {content.sections.about.enabled && <section id="sobre" className="border-y border-border/60 bg-secondary/30 scroll-mt-20">
+      {content.sections.about.enabled && <section id="sobre" className="scroll-mt-20 border-y border-border/60 bg-[var(--site-about)]">
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 lg:px-8">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
             <Image
-              src={featured[1]?.cover_url || content.hero.imageUrl || 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/sobrado-familia.png'}
+              src={content.sections.about.imageUrl || featured[1]?.cover_url || content.hero.imageUrl || 'https://fwvccwfvjzvnmwqfiols.supabase.co/storage/v1/object/public/site-assets/site-demo/sobrado-familia.png'}
               alt={`Equipe ${org.name}`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -176,11 +176,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
               {content.sections.about.body}
             </p>
             <ul className="mt-6 flex flex-col gap-3">
-              {[
-                'Atendimento personalizado do início ao fim',
-                'Imóveis verificados e documentação em dia',
-                'Negociação transparente e segura',
-              ].map((item) => (
+              {content.sections.about.benefits.map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-foreground">
                   <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
                   <span>{item}</span>
@@ -192,7 +188,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
       </section>}
 
       {/* CONTATO */}
-      {content.sections.contact.enabled && <section id="contato" className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+      {content.sections.contact.enabled && <section id="contato" className="scroll-mt-20 bg-[var(--site-contact)]"><div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2">
           <div>
             <h2 className="font-display text-3xl font-bold text-foreground">{content.sections.contact.title}</h2>
@@ -200,14 +196,14 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
               {content.sections.contact.description}
             </p>
             <div className="mt-6 flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-5">
-              {org.phone && (
+              {content.brand.phone && (
                 <p className="text-sm text-muted-foreground">
-                  Telefone: <span className="font-medium text-foreground">{org.phone}</span>
+                  Telefone: <span className="font-medium text-foreground">{content.brand.phone}</span>
                 </p>
               )}
-              {org.email && (
+              {content.brand.email && (
                 <p className="text-sm text-muted-foreground">
-                  E-mail: <span className="font-medium text-foreground">{org.email}</span>
+                  E-mail: <span className="font-medium text-foreground">{content.brand.email}</span>
                 </p>
               )}
               {wpp && (
@@ -217,7 +213,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
                   rel="noopener noreferrer"
                   className={cn(buttonVariants({ variant: 'default' }), 'mt-1 w-full')}
                 >
-                  Chamar no WhatsApp
+                  {content.sections.contact.whatsappLabel}
                 </a>
               )}
             </div>
@@ -226,7 +222,7 @@ export default async function SiteHomePage({ params }: { params: Promise<{ slug:
             <LeadForm organizationId={org.id} />
           </div>
         </div>
-      </section>}
+      </div></section>}
     </>
   )
 }

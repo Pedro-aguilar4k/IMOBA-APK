@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Check, ExternalLink, Eye, Globe, Image as ImageIcon, LayoutTemplate, Palette, RotateCcw, Save, Search, Send } from 'lucide-react'
+import { ArrowLeft, Check, Eye, Globe, Image as ImageIcon, LayoutTemplate, Menu, PaintBucket, Palette, RotateCcw, Save, Search, Send, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,23 +12,32 @@ import { Badge } from '@/components/ui/badge'
 import type { SiteCustomization } from '@/lib/site/customization'
 import { publishSite, resetSiteDraft, saveSiteDraft } from '@/app/plataforma/sites/actions'
 
-type TabKey = 'identidade' | 'hero' | 'secoes' | 'seo' | 'publicacao'
+type TabKey = 'identidade' | 'tema' | 'cabecalho' | 'hero' | 'secoes' | 'rodape' | 'seo' | 'publicacao'
 
 const TABS: { key: TabKey; label: string; icon: typeof Palette }[] = [
-  { key: 'identidade', label: 'Identidade', icon: Palette },
-  { key: 'hero', label: 'Hero e busca', icon: ImageIcon },
+  { key: 'identidade', label: 'Marca', icon: Palette },
+  { key: 'tema', label: 'Cores', icon: PaintBucket },
+  { key: 'cabecalho', label: 'Cabeçalho', icon: Menu },
+  { key: 'hero', label: 'Hero', icon: ImageIcon },
   { key: 'secoes', label: 'Seções', icon: LayoutTemplate },
+  { key: 'rodape', label: 'Rodapé', icon: Type },
   { key: 'seo', label: 'SEO', icon: Search },
-  { key: 'publicacao', label: 'Publicação', icon: Globe },
+  { key: 'publicacao', label: 'Publicar', icon: Globe },
 ]
 
 function Field({ label, htmlFor, hint, children }: { label: string; htmlFor: string; hint?: string; children: React.ReactNode }) {
+  return <div className="flex flex-col gap-2"><Label htmlFor={htmlFor}>{label}</Label>{children}{hint && <p className="text-xs text-muted-foreground">{hint}</p>}</div>
+}
+
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const id = `color-${label.toLowerCase().replaceAll(' ', '-')}`
   return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-    </div>
+    <Field label={label} htmlFor={id}>
+      <div className="flex items-center gap-2">
+        <Input id={id} type="color" value={value} onChange={(event) => onChange(event.target.value)} className="size-10 shrink-0 cursor-pointer p-1" />
+        <Input value={value} onChange={(event) => onChange(event.target.value)} aria-label={`Código hexadecimal de ${label}`} className="font-mono uppercase" />
+      </div>
+    </Field>
   )
 }
 
@@ -137,6 +146,40 @@ export function SiteEditor({
               </>
             )}
 
+            {activeTab === 'tema' && (
+              <>
+                <div><CardTitle>Cores e botões</CardTitle><CardDescription className="mt-1">Personalize cada área do site. Use cores com bom contraste entre fundo e texto.</CardDescription></div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <ColorField label="Fundo geral" value={draft.theme.pageBackground} onChange={(value) => update('theme', { ...draft.theme, pageBackground: value })} />
+                  <ColorField label="Texto principal" value={draft.theme.pageText} onChange={(value) => update('theme', { ...draft.theme, pageText: value })} />
+                  <ColorField label="Texto secundário" value={draft.theme.mutedText} onChange={(value) => update('theme', { ...draft.theme, mutedText: value })} />
+                  <ColorField label="Cor dos botões" value={draft.theme.primary} onChange={(value) => update('theme', { ...draft.theme, primary: value })} />
+                  <ColorField label="Texto dos botões" value={draft.theme.primaryText} onChange={(value) => update('theme', { ...draft.theme, primaryText: value })} />
+                  <ColorField label="Cabeçalho" value={draft.theme.headerBackground} onChange={(value) => update('theme', { ...draft.theme, headerBackground: value })} />
+                  <ColorField label="Faixa de números" value={draft.theme.statsBackground} onChange={(value) => update('theme', { ...draft.theme, statsBackground: value })} />
+                  <ColorField label="Imóveis em destaque" value={draft.theme.featuredBackground} onChange={(value) => update('theme', { ...draft.theme, featuredBackground: value })} />
+                  <ColorField label="Comprar e alugar" value={draft.theme.buyRentBackground} onChange={(value) => update('theme', { ...draft.theme, buyRentBackground: value })} />
+                  <ColorField label="Sobre" value={draft.theme.aboutBackground} onChange={(value) => update('theme', { ...draft.theme, aboutBackground: value })} />
+                  <ColorField label="Contato" value={draft.theme.contactBackground} onChange={(value) => update('theme', { ...draft.theme, contactBackground: value })} />
+                  <ColorField label="Rodapé" value={draft.theme.footerBackground} onChange={(value) => update('theme', { ...draft.theme, footerBackground: value })} />
+                  <ColorField label="Texto do rodapé" value={draft.theme.footerText} onChange={(value) => update('theme', { ...draft.theme, footerText: value })} />
+                </div>
+                <Field label="Arredondamento dos botões" htmlFor="buttonRadius" hint={`${draft.theme.buttonRadius}px`}><Input id="buttonRadius" type="range" min="0" max="24" value={draft.theme.buttonRadius} onChange={(event) => update('theme', { ...draft.theme, buttonRadius: Number(event.target.value) })} /></Field>
+              </>
+            )}
+
+            {activeTab === 'cabecalho' && (
+              <>
+                <div><CardTitle>Cabeçalho e navegação</CardTitle><CardDescription className="mt-1">Todos os nomes do menu e o botão principal podem ser alterados.</CardDescription></div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {Object.entries({ home: 'Início', properties: 'Imóveis', buy: 'Comprar', rent: 'Alugar', about: 'Sobre', contact: 'Contato' }).map(([key, label]) => (
+                    <Field key={key} label={label} htmlFor={`nav-${key}`}><Input id={`nav-${key}`} value={draft.navigation[key as keyof typeof draft.navigation]} onChange={(event) => update('navigation', { ...draft.navigation, [key]: event.target.value })} /></Field>
+                  ))}
+                </div>
+                <Field label="Texto do botão de contato" htmlFor="nav-cta"><Input id="nav-cta" value={draft.navigation.cta} onChange={(event) => update('navigation', { ...draft.navigation, cta: event.target.value })} /></Field>
+              </>
+            )}
+
             {activeTab === 'hero' && (
               <>
                 <div><CardTitle>Hero e busca</CardTitle><CardDescription className="mt-1">A primeira impressão e o principal caminho para encontrar imóveis.</CardDescription></div>
@@ -163,6 +206,36 @@ export function SiteEditor({
                     </div>
                   )
                 })}
+              </>
+            )}
+
+                {activeTab === 'secoes' && <div className="flex flex-col gap-4 rounded-xl border border-border/60 p-4">
+                  <p className="font-semibold">Textos da faixa de números</p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {Object.entries({ available: 'Imóveis disponíveis', sale: 'À venda', rent: 'Para alugar', citySingular: 'Uma cidade', cityPlural: 'Várias cidades' }).map(([key, label]) => <Field key={key} label={label} htmlFor={`stat-${key}`}><Input id={`stat-${key}`} value={draft.stats[key as keyof typeof draft.stats]} onChange={(event) => update('stats', { ...draft.stats, [key]: event.target.value })} /></Field>)}
+                  </div>
+                </div>}
+                {activeTab === 'secoes' && <div className="flex flex-col gap-4 rounded-xl border border-border/60 p-4">
+                  <p className="font-semibold">Botões, estados e blocos</p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Botão da vitrine" htmlFor="featuredCta"><Input id="featuredCta" value={draft.sections.featured.ctaLabel} onChange={(event) => update('sections', { ...draft.sections, featured: { ...draft.sections.featured, ctaLabel: event.target.value } })} /></Field>
+                    <Field label="Mensagem sem imóveis" htmlFor="featuredEmpty"><Input id="featuredEmpty" value={draft.sections.featured.emptyText} onChange={(event) => update('sections', { ...draft.sections, featured: { ...draft.sections.featured, emptyText: event.target.value } })} /></Field>
+                    <Field label="Título do bloco comprar" htmlFor="buyTitle"><Input id="buyTitle" value={draft.sections.buyRent.buyTitle} onChange={(event) => update('sections', { ...draft.sections, buyRent: { ...draft.sections.buyRent, buyTitle: event.target.value } })} /></Field>
+                    <Field label="Título do bloco alugar" htmlFor="rentTitle"><Input id="rentTitle" value={draft.sections.buyRent.rentTitle} onChange={(event) => update('sections', { ...draft.sections, buyRent: { ...draft.sections.buyRent, rentTitle: event.target.value } })} /></Field>
+                    <Field label="Botão comprar/alugar" htmlFor="buyRentCta"><Input id="buyRentCta" value={draft.sections.buyRent.ctaLabel} onChange={(event) => update('sections', { ...draft.sections, buyRent: { ...draft.sections.buyRent, ctaLabel: event.target.value } })} /></Field>
+                    <Field label="Botão do WhatsApp" htmlFor="whatsappLabel"><Input id="whatsappLabel" value={draft.sections.contact.whatsappLabel} onChange={(event) => update('sections', { ...draft.sections, contact: { ...draft.sections.contact, whatsappLabel: event.target.value } })} /></Field>
+                  </div>
+                  <Field label="Diferenciais (um por linha)" htmlFor="benefits"><Textarea id="benefits" rows={4} value={draft.sections.about.benefits.join('\n')} onChange={(event) => update('sections', { ...draft.sections, about: { ...draft.sections.about, benefits: event.target.value.split('\n').filter(Boolean) } })} /></Field>
+                  <Field label="Imagem da seção Sobre (URL)" htmlFor="aboutImage"><Input id="aboutImage" value={draft.sections.about.imageUrl} onChange={(event) => update('sections', { ...draft.sections, about: { ...draft.sections.about, imageUrl: event.target.value } })} /></Field>
+                </div>}
+
+            {activeTab === 'rodape' && (
+              <>
+                <div><CardTitle>Contato e rodapé</CardTitle><CardDescription className="mt-1">Ajuste os títulos e mensagens que encerram o site.</CardDescription></div>
+                <Field label="Título da navegação" htmlFor="footerNav"><Input id="footerNav" value={draft.footer.navigationTitle} onChange={(event) => update('footer', { ...draft.footer, navigationTitle: event.target.value })} /></Field>
+                <Field label="Título dos contatos" htmlFor="footerContact"><Input id="footerContact" value={draft.footer.contactTitle} onChange={(event) => update('footer', { ...draft.footer, contactTitle: event.target.value })} /></Field>
+                <Field label="Texto de direitos" htmlFor="footerRights"><Input id="footerRights" value={draft.footer.rightsText} onChange={(event) => update('footer', { ...draft.footer, rightsText: event.target.value })} /></Field>
+                <Field label="Assinatura" htmlFor="footerSignature"><Input id="footerSignature" value={draft.footer.signatureText} onChange={(event) => update('footer', { ...draft.footer, signatureText: event.target.value })} /></Field>
               </>
             )}
 

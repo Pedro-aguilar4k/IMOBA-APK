@@ -14,18 +14,19 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
   const brand = customization?.brand
   const [open, setOpen] = useState(false)
   const base = `/site/${org.slug}`
+  const labels = customization?.navigation
   const nav = [
-    { href: base, label: 'Início' },
-    { href: `${base}/imoveis`, label: 'Imóveis' },
-    { href: `${base}/imoveis?purpose=venda`, label: 'Comprar' },
-    { href: `${base}/imoveis?purpose=aluguel`, label: 'Alugar' },
-    { href: `${base}#sobre`, label: 'Sobre' },
-    { href: `${base}#contato`, label: 'Contato' },
+    { href: base, label: labels?.home || 'Início' },
+    { href: `${base}/imoveis`, label: labels?.properties || 'Imóveis' },
+    { href: `${base}/imoveis?purpose=venda`, label: labels?.buy || 'Comprar' },
+    { href: `${base}/imoveis?purpose=aluguel`, label: labels?.rent || 'Alugar' },
+    { href: `${base}#sobre`, label: labels?.about || 'Sobre' },
+    { href: `${base}#contato`, label: labels?.contact || 'Contato' },
   ]
   const wpp = whatsappLink(org.whatsapp, `Olá! Vim pelo site da ${org.name} e gostaria de mais informações.`)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-[var(--site-header)]/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href={base} className="flex min-w-0 items-center gap-2.5">
           {brand?.logoUrl || org.logo_url ? (
@@ -61,7 +62,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
               className={cn(buttonVariants({ variant: 'default' }), 'gap-2')}
             >
               <Phone className="size-4" aria-hidden="true" />
-              Falar com corretor
+              {labels?.cta || 'Falar com corretor'}
             </a>
           )}
         </div>
@@ -98,7 +99,7 @@ export function SiteHeader({ org, customization }: { org: SiteOrganization; cust
                 className={cn(buttonVariants({ variant: 'default' }), 'mt-2 h-12 w-full gap-2')}
               >
                 <Phone className="size-4" aria-hidden="true" />
-                Falar com corretor
+                {labels?.cta || 'Falar com corretor'}
               </a>
             )}
           </nav>

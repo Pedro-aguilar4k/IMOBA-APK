@@ -1,29 +1,31 @@
 import { AtSign, Mail, MapPin, Phone } from 'lucide-react'
 import Link from 'next/link'
 import type { SiteOrganization } from '@/lib/site/site-data'
+import type { SiteCustomization } from '@/lib/site/customization'
 
-export function SiteFooter({ org }: { org: SiteOrganization }) {
+export function SiteFooter({ org, customization }: { org: SiteOrganization; customization: SiteCustomization }) {
   const base = `/site/${org.slug}`
+  const { brand, footer, navigation } = customization
   return (
-    <footer className="border-t border-border/60 bg-secondary/40">
+    <footer className="border-t border-border/60 bg-[var(--site-footer)] text-[var(--site-footer-text)] [&_.text-foreground]:text-[var(--site-footer-text)] [&_.text-muted-foreground]:text-[var(--site-footer-text)]/75">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
         <div className="flex flex-col gap-3">
           <span className="flex items-center gap-2.5">
             <span className="flex size-9 items-center justify-center rounded-md bg-primary font-display text-lg font-bold text-primary-foreground">
-              {org.name.charAt(0)}
+              {brand.displayName.charAt(0)}
             </span>
-            <span className="font-display text-lg font-semibold text-foreground">{org.name}</span>
+            <span className="font-display text-lg font-semibold text-foreground">{brand.displayName}</span>
           </span>
           <p className="max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
-            {org.tagline ?? 'Encontre o imóvel ideal para viver ou investir.'}
+            {brand.tagline}
           </p>
           {org.creci && <p className="text-xs text-muted-foreground">{org.creci}</p>}
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="font-display text-sm font-semibold text-foreground">Navegação</h3>
+          <h3 className="font-display text-sm font-semibold text-foreground">{footer.navigationTitle}</h3>
           <Link href={base} className="text-sm text-muted-foreground hover:text-foreground">
-            Início
+            {navigation.home}
           </Link>
           <Link href={`${base}/imoveis`} className="text-sm text-muted-foreground hover:text-foreground">
             Todos os imóveis
@@ -43,7 +45,7 @@ export function SiteFooter({ org }: { org: SiteOrganization }) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="font-display text-sm font-semibold text-foreground">Contato</h3>
+          <h3 className="font-display text-sm font-semibold text-foreground">{footer.contactTitle}</h3>
           {org.phone && (
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="size-4 shrink-0 text-primary" aria-hidden="true" />
@@ -78,9 +80,9 @@ export function SiteFooter({ org }: { org: SiteOrganization }) {
       <div className="border-t border-border/60">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:px-6 lg:px-8">
           <p>
-            © {new Date().getFullYear()} {org.name}. Todos os direitos reservados.
+            © {new Date().getFullYear()} {brand.displayName}. {footer.rightsText}
           </p>
-          <p>Feito com IMOBA</p>
+          <p>{footer.signatureText}</p>
         </div>
       </div>
     </footer>
