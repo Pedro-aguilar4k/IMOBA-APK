@@ -132,6 +132,7 @@ export async function startOnboarding(
 
   // Abre a sessão de checkout (assinatura mensal recorrente em BRL).
   const origin = getOrigin(await headers())
+  const checkoutIdempotencyKey = `subscription:${ownerUserId}:${plan.id}`
   const session = await stripe.checkout.sessions.create({
     ui_mode: 'embedded_page',
     return_url: `${origin}/assinar/sucesso?session_id={CHECKOUT_SESSION_ID}`,
@@ -155,7 +156,7 @@ export async function startOnboarding(
       metadata: { plan_id: plan.id, user_id: ownerUserId },
     },
     metadata: { plan_id: plan.id, user_id: ownerUserId },
-  })
+  }, { idempotencyKey: checkoutIdempotencyKey })
 
   if (!session.client_secret) {
     return { ok: false, error: 'Falha ao iniciar o pagamento. Tente novamente.' }

@@ -5,6 +5,7 @@ import LocatarioHeader from '@/components/dashboard/locatario-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DocumentUpload } from '@/components/dashboard/document-upload'
 
 interface ContractPageProps {
   params: Promise<{ id: string }>
@@ -142,6 +143,15 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   <Button variant="outline">Contatar</Button>
                 </Link>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Anexos do contrato</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DocumentUpload contractId={contract.id} documentType="contrato" label="Anexar documento ao contrato" />
             </CardContent>
           </Card>
 

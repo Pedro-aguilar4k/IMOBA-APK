@@ -5,6 +5,7 @@ import LocatarioHeader from '@/components/dashboard/locatario-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DocumentUpload } from '@/components/dashboard/document-upload'
 
 export default async function MaintenancePage() {
   const supabase = await createClient()
@@ -91,6 +92,9 @@ export default async function MaintenancePage() {
                         {statusLabels[request.status as keyof typeof statusLabels]}
                       </Badge>
                     </div>
+                  </div>
+                  <div className="mt-5 border-t pt-5">
+                    <DocumentUpload maintenanceRequestId={request.id} documentType="manutencao" label="Anexar foto ou documento" />
                   </div>
                 </CardContent>
               </Card>
