@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Check, Eye, Globe, Image as ImageIcon, LayoutTemplate, Menu, PaintBucket, Palette, RotateCcw, Save, Search, Send, Type } from 'lucide-react'
+import { ArrowLeft, Check, Eye, Globe, Image as ImageIcon, LayoutTemplate, Menu, Monitor, PaintBucket, Palette, RotateCcw, Save, Search, Send, Smartphone, Tablet, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -41,25 +41,28 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   )
 }
 
-function LivePreview({ draft }: { draft: SiteCustomization }) {
+type PreviewMode = 'desktop' | 'tablet' | 'mobile'
+
+function LivePreview({ draft, mode }: { draft: SiteCustomization; mode: PreviewMode }) {
   const theme = draft.theme
+  const compact = mode === 'mobile'
   const buttonStyle = { backgroundColor: theme.primary, color: theme.primaryText, borderRadius: theme.buttonRadius }
   return (
     <div className="h-full overflow-y-auto" style={{ backgroundColor: theme.pageBackground, color: theme.pageText }}>
-      <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ backgroundColor: theme.headerBackground }}>
+      <div className={`flex items-center justify-between gap-3 ${compact ? 'px-4 py-3' : 'px-5 py-4'}`} style={{ backgroundColor: theme.headerBackground }}>
         <strong className="truncate font-display">{draft.brand.displayName}</strong>
-        <span className="rounded-md px-3 py-2 text-xs font-semibold" style={buttonStyle}>{draft.navigation.cta}</span>
+        {compact ? <Menu className="size-5" aria-label="Menu móvel" /> : <span className="rounded-md px-3 py-2 text-xs font-semibold" style={buttonStyle}>{draft.navigation.cta}</span>}
       </div>
-      <div className="relative flex min-h-72 flex-col justify-end overflow-hidden bg-cover bg-center p-7" style={{ backgroundImage: `linear-gradient(${theme.heroOverlay}bb, ${theme.heroOverlay}bb), url(${draft.hero.imageUrl})` }}>
+      <div className={`relative flex flex-col justify-end overflow-hidden bg-cover bg-center ${compact ? 'min-h-80 p-5' : 'min-h-72 p-7'}`} style={{ backgroundImage: `linear-gradient(${theme.heroOverlay}bb, ${theme.heroOverlay}bb), url(${draft.hero.imageUrl})` }}>
         <p className="text-xs font-semibold uppercase tracking-wider text-white/80">{draft.hero.eyebrow}</p>
-        <h2 className="mt-2 max-w-xl text-balance font-display text-3xl font-bold text-white">{draft.hero.title}</h2>
+        <h2 className={`mt-2 max-w-xl text-balance font-display font-bold text-white ${compact ? 'text-2xl' : 'text-3xl'}`}>{draft.hero.title}</h2>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/80">{draft.hero.description}</p>
         <span className="mt-4 w-fit px-4 py-2 text-sm font-semibold" style={buttonStyle}>{draft.hero.ctaLabel}</span>
       </div>
-      <div className="grid grid-cols-4 gap-2 p-5 text-center" style={{ backgroundColor: theme.statsBackground }}>
-        {[draft.stats.available, draft.stats.sale, draft.stats.rent, draft.stats.cityPlural].map((label, index) => <div key={label}><strong className="block text-lg">{[24, 15, 9, 3][index]}</strong><span className="text-[10px]" style={{ color: theme.mutedText }}>{label}</span></div>)}
+      <div className={`grid gap-2 text-center ${compact ? 'grid-cols-2 p-4' : 'grid-cols-4 p-5'}`} style={{ backgroundColor: theme.statsBackground }}>
+        {[draft.stats.available, draft.stats.sale, draft.stats.rent, draft.stats.cityPlural].map((label, index) => <div key={label} className="min-w-0 py-1"><strong className="block text-lg">{[24, 15, 9, 3][index]}</strong><span className="block text-[10px] leading-tight" style={{ color: theme.mutedText }}>{label}</span></div>)}
       </div>
-      {draft.sections.featured.enabled && <div className="p-6" style={{ backgroundColor: theme.featuredBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.featured.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.featured.title}</h3><p className="mt-1 text-sm" style={{ color: theme.mutedText }}>{draft.sections.featured.description}</p><div className="mt-4 grid grid-cols-3 gap-3">{[1, 2, 3].map((item) => <div key={item} className="aspect-[4/3] rounded-lg" style={{ backgroundColor: theme.secondary }} />)}</div></div>}
+      {draft.sections.featured.enabled && <div className={compact ? 'p-5' : 'p-6'} style={{ backgroundColor: theme.featuredBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.featured.eyebrow}</p><h3 className={`mt-1 font-display font-bold ${compact ? 'text-xl' : 'text-2xl'}`}>{draft.sections.featured.title}</h3><p className="mt-1 text-sm" style={{ color: theme.mutedText }}>{draft.sections.featured.description}</p><div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-1' : 'grid-cols-3'}`}>{[1, 2, 3].map((item) => <div key={item} className="aspect-[4/3] rounded-lg" style={{ backgroundColor: theme.secondary }} />)}</div></div>}
       {draft.sections.about.enabled && <div className="p-6" style={{ backgroundColor: theme.aboutBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.about.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.about.title}</h3><p className="mt-2 text-sm leading-relaxed" style={{ color: theme.mutedText }}>{draft.sections.about.body}</p></div>}
       {draft.sections.contact.enabled && <div className="p-6" style={{ backgroundColor: theme.contactBackground }}><p className="text-xs font-semibold" style={{ color: theme.primary }}>{draft.sections.contact.eyebrow}</p><h3 className="mt-1 font-display text-2xl font-bold">{draft.sections.contact.title}</h3><span className="mt-4 inline-block px-4 py-2 text-sm font-semibold" style={buttonStyle}>{draft.sections.contact.whatsappLabel}</span></div>}
       <div className="flex justify-between gap-3 p-6 text-xs" style={{ backgroundColor: theme.footerBackground, color: theme.footerText }}><span>{draft.brand.displayName}</span><span>{draft.footer.signatureText}</span></div>
@@ -80,6 +83,7 @@ export function SiteEditor({
   const [activeTab, setActiveTab] = useState<TabKey>('identidade')
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState('')
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
   const previewUrl = `/site/${organization.slug}`
   const updatedLabel = useMemo(
     () => (publishedAt ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(publishedAt)) : 'Ainda não publicado'),
@@ -133,7 +137,7 @@ export function SiteEditor({
         </div>
       </header>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
+      <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
         <Card className="overflow-hidden">
           <div className="flex overflow-x-auto border-b border-border/60 bg-muted/20 px-2 py-2">
             {TABS.map((tab) => {
@@ -285,9 +289,26 @@ export function SiteEditor({
           </CardContent>
         </Card>
 
-        <div className="min-h-[720px] overflow-hidden rounded-xl border border-border/60 bg-muted/30 shadow-sm">
-          <div className="flex items-center justify-between border-b border-border/60 bg-background px-4 py-3"><div className="flex items-center gap-2 text-sm font-medium"><span className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary"><Eye aria-hidden="true" /></span>Preview ao vivo</div><Badge variant="outline">Rascunho</Badge></div>
-          <div className="h-[calc(100vh-210px)] min-h-[650px] w-full"><LivePreview draft={draft} /></div>
+        <div className="min-w-0 overflow-hidden rounded-xl border border-border/60 bg-muted/30 shadow-sm xl:sticky xl:top-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 bg-background px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-medium"><span className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary"><Eye aria-hidden="true" /></span>Preview ao vivo <Badge variant="outline">Rascunho</Badge></div>
+            <div className="flex rounded-lg border border-border/60 bg-muted/30 p-1" aria-label="Tamanho do preview">
+              {([
+                { mode: 'desktop' as const, label: 'Desktop', icon: Monitor },
+                { mode: 'tablet' as const, label: 'Tablet', icon: Tablet },
+                { mode: 'mobile' as const, label: 'Celular', icon: Smartphone },
+              ]).map(({ mode, label, icon: Icon }) => (
+                <button key={mode} type="button" onClick={() => setPreviewMode(mode)} aria-label={`Visualizar em ${label}`} aria-pressed={previewMode === mode} className={`flex size-8 items-center justify-center rounded-md transition-colors ${previewMode === mode ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <Icon className="size-4" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex h-[calc(100vh-190px)] min-h-[560px] w-full justify-center overflow-hidden bg-muted/50 p-2 sm:p-4">
+            <div className={`h-full overflow-hidden bg-background shadow-lg transition-[width,border-radius] duration-300 ${previewMode === 'desktop' ? 'w-full rounded-md' : previewMode === 'tablet' ? 'w-[768px] max-w-full rounded-xl' : 'w-[390px] max-w-full rounded-[1.5rem]'}`}>
+              <LivePreview draft={draft} mode={previewMode} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
